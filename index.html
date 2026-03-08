@@ -276,9 +276,30 @@ function openStats(){
   archive.forEach(game=>{
     game.players.forEach((p,i)=>{
       if(!wins[p]) wins[p]=0;
-      if(!totalPoints[p]) totalPoints[p]=0;
-      totalPoints[p]+=game.scores[i];
     });
+    let maxPointsPlayer="";
+let maxPoints=-Infinity;
+
+let minPointsPlayer="";
+let minPoints=Infinity;
+
+archive.forEach(game=>{
+  game.players.forEach((p,i)=>{
+
+    let score = game.scores[i];
+
+    if(score > maxPoints){
+      maxPoints = score;
+      maxPointsPlayer = p;
+    }
+
+    if(score < minPoints){
+      minPoints = score;
+      minPointsPlayer = p;
+    }
+
+  });
+});
     let minScore=Math.min(...game.scores);
     let winnerIndex=game.scores.indexOf(minScore);
     wins[game.players[winnerIndex]]++;
@@ -287,13 +308,11 @@ function openStats(){
   });
   let container=document.getElementById("statsList"); container.innerHTML="";
   let bestPlayer = Object.keys(wins).reduce((a,b)=>wins[a]>wins[b]?a:b);
-  let maxPointsPlayer = Object.keys(totalPoints).reduce((a,b)=>totalPoints[a]>totalPoints[b]?a:b);
-  let minPointsPlayer = Object.keys(totalPoints).reduce((a,b)=>totalPoints[a]<totalPoints[b]?a:b);
+  
 
   container.innerHTML+=`<b>Igrac sa najvise pobjeda: ${wins[bestPlayer]}, ${bestPlayer}</b><br>`;
   Object.keys(wins).forEach(p=>container.innerHTML+=`${p}: ${wins[p]} pobjeda<br>`);
-  container.innerHTML+=`<b>Igrac sa najvise poena: ${maxPointsPlayer}, ${totalPoints[maxPointsPlayer]}</b><br>`;
-  container.innerHTML+=`<b>Igrac sa najmanje poena: ${minPointsPlayer}, ${totalPoints[minPointsPlayer]}</b><br>`;
+  
   container.innerHTML+=`<b>Najduza partija: ${formatTime(maxTime.val)}, ${formatDate(maxTime.date)}</b><br>`;
   container.innerHTML+=`<b>Najkraca partija: ${formatTime(minTime.val)}, ${formatDate(minTime.date)}</b><br>`;
 }
