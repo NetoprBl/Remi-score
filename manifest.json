@@ -1,0 +1,8 @@
+{
+  "name": "Remi Score",
+  "short_name": "Remi",
+  "start_url": "remi.html",
+  "display": "standalone",
+  "background_color": "#f2f2f7",
+  "theme_color": "#007AFF"
+}
