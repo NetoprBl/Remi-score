@@ -1,334 +1,239 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<link rel="manifest" href="manifest.json">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Remi Score</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
-body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI;background:#f2f2f7;margin:0;padding:20px;text-align:center;transition:0.3s;}
-.dark{background:#1c1c1e;color:white;}
-.page{display:none;}
-.active{display:block;}
-.title{font-size:22px;color:#007AFF;margin-bottom:20px;}
-.btn{padding:12px 18px;border-radius:14px;border:1px solid #007AFF;background:white;color:#007AFF;font-size:16px;margin:4px;}
-.dark .btn{background:#2c2c2e;color:white;border:1px solid #555;}
-.players{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
-input{padding:10px;font-size:18px;border-radius:8px;border:1px solid #ccc;width:70px;text-align:center;}
-#gameBoard{display:grid;grid-template-columns:1fr 1.5fr 1fr 1fr;gap:12px;align-items:center;justify-items:center;margin-top:25px;}
-.dealer{font-size:16px;color:#007AFF;}
-.playerName{font-size:20px;font-weight:600;color:#007AFF;}
-.totalScore{font-size:24px;font-weight:bold;}
-.scoreInput{font-size:20px;width:60px;}
-table{width:100%;border-collapse:collapse;margin-top:10px;color:#007AFF;}
-th,td{border:1px solid #ccc;padding:8px;}
-th.timeCol{color:#007AFF;}
-td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
-.cycleLine td:not(.timeCol){border-bottom:3px solid #007AFF !important;}
-.dark table{color:#4da3ff;}
-.archiveItem{border:1px solid #ccc;padding:10px;margin:10px;border-radius:10px;text-align:left;}
+  body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f2f2f7; color: #007AFF; margin:0; padding:0; }
+  .dark { background: #1c1c1e; color: #0a84ff; }
+  .center { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; }
+  .button { padding:10px 20px; border-radius:8px; border:1px solid #007AFF; background:#fff; color:#007AFF; margin:5px; cursor:pointer; }
+  .button:hover { background:#e6f0ff; }
+  table { border-collapse: collapse; margin-top:10px; }
+  td, th { border:1px solid #ccc; padding:5px 10px; text-align:center; color:#007AFF; }
+  .cycle-line { border-bottom:2px solid blue; }
+  .time-col { color:red; border:none; width:60px; }
 </style>
 </head>
 <body>
-
-<!-- PAGE 1 -->
-<div id="page1" class="page active">
-  <div class="title">Odaberi koliko igraca je u igri:</div>
-  <button class="btn" onclick="selectPlayers(2)">2</button>
-  <button class="btn" onclick="selectPlayers(3)">3</button>
-  <button class="btn" onclick="selectPlayers(4)">4</button>
-  <button class="btn" onclick="selectPlayers(5)">5</button>
-  <button class="btn" onclick="selectPlayers(6)">6</button>
-  <br><br>
-  <button class="btn" onclick="openArchiveFromMenu()">Arhiva</button>
-  <button class="btn" onclick="toggleDark()">Dark mode</button>
+<div class="center" id="page1">
+  <h2>Odaberi koliko igraca je u igri:</h2>
+  <div id="playerButtons"></div>
 </div>
 
-<!-- PAGE 2 -->
-<div id="page2" class="page">
-  <div class="title">Upisi imena igraca</div>
-  <div id="playersContainer" class="players"></div>
-  <button class="btn" onclick="showPage(1)">Nazad</button>
-  <button class="btn" onclick="startGame()">Kreni</button>
+<div class="center" id="page2" style="display:none;">
+  <div id="playerNames"></div>
+  <button class="button" id="startGameBtn">Kreni</button>
 </div>
 
-<!-- PAGE 3 -->
-<div id="page3" class="page">
-  <button class="btn" onclick="newGame()">Nova igra</button>
-  <button class="btn" onclick="openTable()">Tabela</button>
-  <button class="btn" onclick="openArchive()">Arhiva</button>
-  <button class="btn" onclick="openStats()">Statistika</button>
-  <button class="btn" onclick="removePlayer()">Izbaci igraca</button>
-  <button class="btn" onclick="toggleDark()">Dark mode</button>
-  <div id="gameBoard"></div>
-  <br>
-  <button class="btn" onclick="addScore()">Upisi rundu</button>
-  <button class="btn" onclick="removeLast()">Ispravka</button>
+<div class="center" id="page3" style="display:none;">
+  <div id="gameControls">
+    <button class="button" id="newGameBtn">Nova igra</button>
+    <button class="button" id="archiveBtn">Arhiva</button>
+    <button class="button" id="statsBtn">Statistika</button>
+  </div>
+  <div id="gameTableContainer"></div>
 </div>
 
-<!-- PAGE 4 TABELA -->
-<div id="page4" class="page">
-  <h3>Tabela rundi</h3>
-  <table id="roundTable"></table>
-  <br>
-  <button class="btn" onclick="showPage(3)">Nazad</button>
-</div>
-
-<!-- PAGE 5 ARHIVA -->
-<div id="page5" class="page">
-  <h3>Arhiva</h3>
-  <button class="btn" onclick="openStats()">Statistika</button>
-  <div id="archiveList"></div>
-  <button class="btn" onclick="deleteSelected()">Obrisi oznacene</button>
-  <button class="btn" onclick="closeArchive()">Nazad</button>
-</div>
-
-<!-- PAGE 6 STATISTIKA -->
-<div id="page6" class="page">
-  <h3>Statistika</h3>
-  <div id="statsList"></div>
-  <button class="btn" onclick="showPage(previousPage)">Nazad</button>
-</div>
+<div id="archivePage" style="display:none;" class="center"></div>
+<div id="statsPage" style="display:none;" class="center"></div>
 
 <script>
-let playerNames=[], totals=[], roundHistory=[], roundCount=0, previousPage=1;
-let roundStartTime=null, gameStartTime=null;
+// --- Global Variables ---
+let numPlayers = 0;
+let players = [];
+let archive = JSON.parse(localStorage.getItem('remiArchive') || '[]');
+let gameScores = [];
+let startTimes = [];
+let roundStartTime;
 
-function toggleDark(){document.body.classList.toggle("dark");}
-function showPage(n){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.getElementById("page"+n).classList.add("active");}
+// --- Page 1: odabir broja igraca ---
+const playerButtonsDiv = document.getElementById('playerButtons');
+for(let i=2;i<=6;i++){
+  let btn = document.createElement('button');
+  btn.innerText = i;
+  btn.className='button';
+  btn.onclick=()=>{numPlayers=i; showPage2();}
+  playerButtonsDiv.appendChild(btn);
+}
 
-// Nastavi prethodnu igru
-window.onload = function(){
-  const saved = localStorage.getItem("remiCurrentGame");
-  if(saved){
-    if(confirm("Postoji nedovrsena igra. Zelite li da nastavite?")){
-      const state = JSON.parse(saved);
-      playerNames = state.playerNames;
-      totals = state.totals;
-      roundHistory = state.roundHistory;
-      roundCount = state.roundCount;
-      gameStartTime = new Date().getTime() - state.elapsedTime;
-      createBoard();
-      showPage(3);
-    } else { localStorage.removeItem("remiCurrentGame"); }
+function showPage2(){
+  document.getElementById('page1').style.display='none';
+  document.getElementById('page2').style.display='flex';
+  const container = document.getElementById('playerNames');
+  container.innerHTML='';
+  players=[];
+  for(let i=0;i<numPlayers;i++){
+    let div=document.createElement('div');
+    div.style.display='flex'; div.style.margin='5px';
+    let lbl=document.createElement('label');
+    lbl.innerText=`Igrac ${i+1}: `;
+    lbl.style.width='80px';
+    let input=document.createElement('input'); input.type='text';
+    div.appendChild(lbl); div.appendChild(input);
+    container.appendChild(div);
+    players.push(input);
+  }
+}
+
+document.getElementById('startGameBtn').onclick=()=>{
+  players = players.map(i=>i.value || `Igrac${Math.floor(Math.random()*100)}`);
+  gameScores=[]; startTimes=[]; showPage3();
+};
+
+// --- Page 3: Igra ---
+function showPage3(){
+  document.getElementById('page2').style.display='none';
+  document.getElementById('page3').style.display='flex';
+  renderGameTable();
+  roundStartTime=Date.now();
+}
+
+function renderGameTable(){
+  const container=document.getElementById('gameTableContainer');
+  container.innerHTML='';
+  let table=document.createElement('table');
+  let header=table.insertRow();
+  players.forEach(p=>{
+    let th=document.createElement('th'); th.innerText=p;
+    header.appendChild(th);
+  });
+  let thTime=document.createElement('th'); thTime.innerText='Vrijeme'; thTime.className='time-col';
+  header.appendChild(thTime);
+  container.appendChild(table);
+
+  // unos bodova za rundu
+  let inputRow=table.insertRow();
+  players.forEach((p,i)=>{
+    let td=inputRow.insertCell();
+    let inp=document.createElement('input'); inp.type='number'; inp.value=0; inp.style.width='50px';
+    td.appendChild(inp);
+  });
+  let tdTime=inputRow.insertCell(); tdTime.className='time-col'; tdTime.innerText='--';
+  let submitBtn=document.createElement('button'); submitBtn.className='button'; submitBtn.innerText='Upis';
+  submitBtn.onclick=()=>submitRound(table,inputRow);
+  tdTime.appendChild(submitBtn);
+  container.appendChild(table);
+}
+
+function submitRound(table,inputRow){
+  let rowScores=[];
+  const now=Date.now();
+  let roundTime=new Date(now-roundStartTime);
+  players.forEach((p,i)=>{
+    let val = parseInt(inputRow.cells[i].children[0].value) || 0;
+    rowScores.push(val);
+  });
+  let timeStr=roundTime.getUTCHours().toString().padStart(2,'0')+':'+roundTime.getUTCMinutes().toString().padStart(2,'0');
+  inputRow.cells[players.length].innerText=timeStr;
+
+  gameScores.push(rowScores);
+  startTimes.push(now);
+
+  // linija ciklusa svaki broj igraca rundi
+  if(gameScores.length % numPlayers===0){
+    let cycleRow=table.insertRow();
+    for(let i=0;i<numPlayers;i++){
+      let td=cycleRow.insertCell(); td.className='cycle-line'; td.innerHTML='&nbsp;';
+    }
+    let tdTime=cycleRow.insertCell(); tdTime.className='time-col';
+  }
+
+  // novi red za unos
+  let newRow=table.insertRow();
+  players.forEach((p,i)=>{
+    let td=newRow.insertCell(); let inp=document.createElement('input'); inp.type='number'; inp.value=0; inp.style.width='50px'; td.appendChild(inp);
+  });
+  let tdTime=newRow.insertCell(); tdTime.className='time-col'; tdTime.innerText='--';
+  let submitBtn=document.createElement('button'); submitBtn.className='button'; submitBtn.innerText='Upis';
+  tdTime.appendChild(submitBtn);
+  submitBtn.onclick=()=>submitRound(table,newRow);
+}
+
+// --- Dugmad ---
+document.getElementById('newGameBtn').onclick=()=>{
+  if(confirm('Da li želite prekinuti trenutnu igru?')){
+    archive.push({players:players,scores:gameScores,startTimes:startTimes,date:new Date().toISOString()});
+    localStorage.setItem('remiArchive',JSON.stringify(archive));
+    location.reload();
   }
 };
 
-function saveCurrentGame() {
-  const elapsedTime = gameStartTime ? new Date().getTime() - gameStartTime : 0;
-  const gameState = {playerNames, totals, roundHistory, roundCount, elapsedTime};
-  localStorage.setItem("remiCurrentGame", JSON.stringify(gameState));
-}
+document.getElementById('archiveBtn').onclick=showArchive;
+document.getElementById('statsBtn').onclick=openStats;
 
-function selectPlayers(num){
-  showPage(2);
-  let c=document.getElementById("playersContainer");
-  c.innerHTML="";
-  for(let i=1;i<=num;i++){ c.innerHTML+=`<label>Igrac ${i}</label><input id="player${i}">`; }
-}
-
-function startGame(){
-  playerNames=[], totals=[], roundHistory=[], roundCount=0;
-  let inputs=document.querySelectorAll("#playersContainer input");
-  inputs.forEach((p,i)=>{let name=p.value||"Igrac "+(i+1); playerNames.push(name); totals.push(0);});
-  gameStartTime=new Date().getTime();
-  roundStartTime=new Date().getTime();
-  createBoard();
-  saveCurrentGame();
-  showPage(3);
-}
-
-function currentDealer(){return roundCount%playerNames.length;}
-
-function createBoard(){
-  let board=document.getElementById("gameBoard");
-  board.innerHTML="";
-  let dealer=currentDealer();
-  playerNames.forEach((name,i)=>{
-    let label=(i==dealer)?"Dijeli:":"";
-    board.innerHTML+=`<div class="dealer">${label}</div>
-      <div class="playerName">${name}</div>
-      <input type="number" class="scoreInput" id="score${i}">
-      <div class="totalScore" id="total${i}">${totals[i]}</div>`;
+// --- Arhiva ---
+function showArchive(){
+  document.getElementById('page3').style.display='none';
+  const container=document.getElementById('archivePage');
+  container.style.display='flex';
+  container.innerHTML='<h2>Arhiva partija</h2>';
+  archive.forEach((g,i)=>{
+    let div=document.createElement('div');
+    div.innerHTML=`<b>Partija ${i+1}</b> (${g.date.slice(0,10)} ${g.date.slice(11,16)})<br>`;
+    g.players.forEach((p,j)=>{
+      div.innerHTML+=`${p}: ${g.scores.map(r=>r[j]).reduce((a,b)=>a+b,0)} poena<br>`;
+    });
+    container.appendChild(div);
   });
 }
 
-function formatTime(seconds){
-  let h=Math.floor(seconds/3600); 
-  let m=Math.floor((seconds%3600)/60);
-  return (h<10?"0"+h:h)+":"+(m<10?"0"+m:m);
-}
-
-function formatDate(dateStr){
-  let d=new Date(dateStr);
-  let y=("0"+d.getFullYear()).slice(-2);
-  let m=("0"+(d.getMonth()+1)).slice(-2);
-  let day=("0"+d.getDate()).slice(-2);
-  return y+":"+m+":"+day;
-}
-
-function addScore(){
-  let round=[];
-  let roundEndTime = new Date().getTime();
-  let roundDuration = Math.round((roundEndTime - roundStartTime)/1000);
-  roundStartTime = roundEndTime;
-
-  playerNames.forEach((p,i)=>{
-    let val=document.getElementById("score"+i).value;
-    if(val==="") val=0;
-    val=parseInt(val);
-    totals[i]+=val;
-    document.getElementById("total"+i).innerText=totals[i];
-    round.push(val);
-    document.getElementById("score"+i).value="";
-  });
-  round.push(roundDuration);
-  roundHistory.push(round);
-  roundCount++;
-  createBoard();
-  saveCurrentGame();
-}
-
-function removeLast(){
-  if(roundHistory.length==0)return;
-  let last=roundHistory.pop();
-  last.slice(0,playerNames.length).forEach((v,i)=>{totals[i]-=v;});
-  roundCount--;
-  createBoard();
-  saveCurrentGame();
-}
-
-function newGame(){
-  if(roundHistory.length>0){
-    let save = confirm("Sacuvati trenutnu igru?");
-    if(save){ saveGame(); localStorage.removeItem("remiCurrentGame"); resetGameState(); showPage(1); return; }
-    let dont = confirm("Pokrenuti novu igru bez cuvanja?");
-    if(dont){ localStorage.removeItem("remiCurrentGame"); resetGameState(); showPage(1); return; }
-  } else { localStorage.removeItem("remiCurrentGame"); resetGameState(); showPage(1); }
-}
-
-function resetGameState(){
-  playerNames=[]; totals=[]; roundHistory=[]; roundCount=0;
-  roundStartTime=null; gameStartTime=null;
-  document.getElementById("gameBoard").innerHTML="";
-  document.querySelectorAll("#playersContainer input").forEach(i=>i.value="");
-}
-
-function saveGame(){
-  let archive=JSON.parse(localStorage.getItem("remiArchive"))||[];
-  let totalGameTime=Math.round((new Date().getTime()-gameStartTime)/1000);
-  archive.push({date:new Date().toLocaleString(),players:playerNames,scores:totals,duration:totalGameTime});
-  localStorage.setItem("remiArchive",JSON.stringify(archive));
-}
-
-function openTable(){
-  showPage(4);
-  let table=document.getElementById("roundTable");
-  table.innerHTML="";
-  let header="<tr>";
-  playerNames.forEach(p=>header+="<th>"+p+"</th>");
-  header+="<th class='timeCol'>Vrijeme</th></tr>";
-  table.innerHTML+=header;
-
-  let sums=new Array(playerNames.length).fill(0);
-  roundHistory.forEach((r,i)=>{
-    r.slice(0,playerNames.length).forEach((v,j)=>{sums[j]+=v;});
-    let roundTime=r[r.length-1];
-    let row="<tr>";
-    sums.forEach(v=>row+="<td>"+v+"</td>");
-    row+="<td class='timeCol'>"+formatTime(roundTime)+"</td></tr>";
-    if((i+1)%playerNames.length==0){ row="<tr class='cycleLine'>"+row.replace(/<td class='timeCol'>.*<\/td>/,"<td class='timeCol'>"+formatTime(roundTime)+"</td>")+"</tr>"; }
-    table.innerHTML+=row;
-  });
-}
-
-// ARCHIVE
-function openArchive(){previousPage=3; showPage(5); loadArchive();}
-function openArchiveFromMenu(){previousPage=1; showPage(5); loadArchive();}
-function closeArchive(){showPage(previousPage);}
-function loadArchive(){
-  let archive=JSON.parse(localStorage.getItem("remiArchive"))||[];
-  let container=document.getElementById("archiveList");
-  container.innerHTML="";
-  archive.forEach((game,index)=>{
-    let div=document.createElement("div");
-    div.className="archiveItem";
-    let html=`<input type="checkbox" value="${index}"> <b>${game.date}</b><br>`;
-    game.players.forEach((p,i)=>{html+=p+" : "+game.scores[i]+"<br>";});
-    html+=`<b>Trajanje partije: ${formatTime(game.duration)}</b>`;
-    div.innerHTML=html; container.appendChild(div);
-  });
-}
-function deleteSelected(){
-  let archive=JSON.parse(localStorage.getItem("remiArchive"))||[];
-  let checks=document.querySelectorAll("#archiveList input:checked"); let indexes=[];
-  checks.forEach(c=>indexes.push(parseInt(c.value)));
-  archive=archive.filter((g,i)=>!indexes.includes(i));
-  localStorage.setItem("remiArchive",JSON.stringify(archive));
-  loadArchive();
-}
-
-// STATISTICS
+// --- Statistika ---
 function openStats(){
-  previousPage=document.querySelector("#page6").classList.contains("active")?previousPage:3;
-  showPage(6);
-  let archive=JSON.parse(localStorage.getItem("remiArchive"))||[];
-  let wins={}, totalPoints={}; let maxTime={val:-1,date:""}, minTime={val:Infinity,date:""};
+  document.getElementById('page3').style.display='none';
+  const container=document.getElementById('statsPage');
+  container.style.display='flex';
+  container.innerHTML='<h2>Statistika</h2>';
+
+  // Pobjede
+  let wins={};
+  archive.forEach(game=>{
+    let totals=game.scores[0].map((_,i)=>game.scores.map(r=>r[i]).reduce((a,b)=>a+b,0));
+    let minTotal=Math.min(...totals);
+    totals.forEach((t,i)=>{if(!wins[game.players[i]]) wins[game.players[i]]=0;});
+    let winnerIndex=totals.indexOf(minTotal);
+    wins[game.players[winnerIndex]]++;
+  });
+  let maxWinPlayer=Object.keys(wins).reduce((a,b)=>wins[a]>wins[b]?a:b);
+  container.innerHTML+=`<b>Igrac sa najvise pobjeda: ${maxWinPlayer}, ${wins[maxWinPlayer]}</b><br>`;
+  Object.keys(wins).forEach(p=>{
+    container.innerHTML+=`${p}: ${wins[p]}<br>`;
+  });
+
+  // Najvise i najmanje poena u partiji
+  let maxPointsPlayer=""; let maxPoints=-Infinity;
+  let minPointsPlayer=""; let minPoints=Infinity;
   archive.forEach(game=>{
     game.players.forEach((p,i)=>{
-      if(!wins[p]) wins[p]=0;
+      game.scores.forEach(row=>{
+        let val=row[i];
+        if(val>maxPoints){ maxPoints=val; maxPointsPlayer=p; }
+        if(val<minPoints){ minPoints=val; minPointsPlayer=p; }
+      });
     });
-    let maxPointsPlayer="";
-let maxPoints=-Infinity;
-
-let minPointsPlayer="";
-let minPoints=Infinity;
-
-archive.forEach(game=>{
-  game.players.forEach((p,i)=>{
-
-    let score = game.scores[i];
-
-    if(score > maxPoints){
-      maxPoints = score;
-      maxPointsPlayer = p;
-    }
-
-    if(score < minPoints){
-      minPoints = score;
-      minPointsPlayer = p;
-    }
-
   });
-});
-    let minScore=Math.min(...game.scores);
-    let winnerIndex=game.scores.indexOf(minScore);
-    wins[game.players[winnerIndex]]++;
-    if(game.duration>maxTime.val){maxTime.val=game.duration; maxTime.date=game.date;}
-    if(game.duration<minTime.val){minTime.val=game.duration; minTime.date=game.date;}
-  });
-  let container=document.getElementById("statsList"); container.innerHTML="";
-  let bestPlayer = Object.keys(wins).reduce((a,b)=>wins[a]>wins[b]?a:b);
-  
+  container.innerHTML+=`<b>Igrac sa najvise poena u partiji: ${maxPointsPlayer}, ${maxPoints}</b><br>`;
+  container.innerHTML+=`<b>Igrac sa najmanje poena u partiji: ${minPointsPlayer}, ${minPoints}</b><br>`;
 
-  container.innerHTML+=`<b>Igrac sa najvise pobjeda: ${wins[bestPlayer]}, ${bestPlayer}</b><br>`;
-  Object.keys(wins).forEach(p=>container.innerHTML+=`${p}: ${wins[p]} pobjeda<br>`);
-  container.innerHTML+=`<b>Igrac sa najvise poena: ${maxPointsPlayer}, ${maxPoints}</b><br>`;
-container.innerHTML+=`<b>Igrac sa najmanje poena: ${minPointsPlayer}, ${minPoints}</b><br>`;
-  container.innerHTML+=`<b>Najduza partija: ${formatTime(maxTime.val)}, ${formatDate(maxTime.date)}</b><br>`;
-  container.innerHTML+=`<b>Najkraca partija: ${formatTime(minTime.val)}, ${formatDate(minTime.date)}</b><br>`;
+  // Najduza i najkraca partija
+  if(archive.length>0){
+    let maxTime=0, minTime=Infinity, maxDate="", minDate="";
+    archive.forEach(game=>{
+      let time=(game.startTimes[game.startTimes.length-1]-game.startTimes[0])/1000/60; // minute
+      if(time>maxTime){ maxTime=time; maxDate=game.date; }
+      if(time<minTime){ minTime=time; minDate=game.date; }
+    });
+    container.innerHTML+=`<b>Najduza partija:</b> ${Math.floor(maxTime/60).toString().padStart(2,'0')}:${Math.floor(maxTime%60).toString().padStart(2,'0')}, ${maxDate.slice(0,10)}<br>`;
+    container.innerHTML+=`<b>Najkraca partija:</b> ${Math.floor(minTime/60).toString().padStart(2,'0')}:${Math.floor(minTime%60).toString().padStart(2,'0')}, ${minDate.slice(0,10)}<br>`;
+  }
 }
 
-// Izbacivanje igraca
-function removePlayer(){
-  let name=prompt("Ime igraca za izbacivanje:");
-  let index=playerNames.indexOf(name); if(index==-1)return;
-  playerNames.splice(index,1); totals.splice(index,1);
-  roundHistory.forEach(r=>r.splice(index,1));
-  createBoard(); saveCurrentGame();
-}
-</script>
-<script>
-if ('serviceWorker' in navigator) {
+// --- PWA service worker ---
+if('serviceWorker' in navigator){
   navigator.serviceWorker.register('service-worker.js');
 }
 </script>
