@@ -312,7 +312,8 @@ archive.forEach(game=>{
 
   container.innerHTML+=`<b>Igrac sa najvise pobjeda: ${wins[bestPlayer]}, ${bestPlayer}</b><br>`;
   Object.keys(wins).forEach(p=>container.innerHTML+=`${p}: ${wins[p]} pobjeda<br>`);
-  
+  container.innerHTML+=`<b>Igrac sa najvise poena: ${maxPointsPlayer}, ${maxPoints}</b><br>`;
+container.innerHTML+=`<b>Igrac sa najmanje poena: ${minPointsPlayer}, ${minPoints}</b><br>`;
   container.innerHTML+=`<b>Najduza partija: ${formatTime(maxTime.val)}, ${formatDate(maxTime.date)}</b><br>`;
   container.innerHTML+=`<b>Najkraca partija: ${formatTime(minTime.val)}, ${formatDate(minTime.date)}</b><br>`;
 }
