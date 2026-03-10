@@ -269,33 +269,84 @@ function deleteSelected(){
 
 // STATISTICS
 function openStats(){
+
   previousPage=document.querySelector("#page6").classList.contains("active")?previousPage:3;
   showPage(6);
+
   let archive=JSON.parse(localStorage.getItem("remiArchive"))||[];
-  let wins={}, totalPoints={}; let maxTime={val:-1,date:""}, minTime={val:Infinity,date:""};
+
+  let wins={}, totalPoints={};
+
+  let maxGamePoints={player:"",val:-Infinity};
+  let minGamePoints={player:"",val:Infinity};
+
+  let maxTime={val:-1,date:""};
+  let minTime={val:Infinity,date:""};
+
   archive.forEach(game=>{
+
     game.players.forEach((p,i)=>{
+
       if(!wins[p]) wins[p]=0;
       if(!totalPoints[p]) totalPoints[p]=0;
-      totalPoints[p]+=game.scores[i];
+
+      let score=game.scores[i];
+
+      // ukupni poeni svih partija
+      totalPoints[p]+=score;
+
+      // rekord najvise poena u jednoj partiji
+      if(score>maxGamePoints.val){
+        maxGamePoints.val=score;
+        maxGamePoints.player=p;
+      }
+
+      // rekord najmanje poena u jednoj partiji
+      if(score<minGamePoints.val){
+        minGamePoints.val=score;
+        minGamePoints.player=p;
+      }
+
     });
+
     let minScore=Math.min(...game.scores);
     let winnerIndex=game.scores.indexOf(minScore);
     wins[game.players[winnerIndex]]++;
-    if(game.duration>maxTime.val){maxTime.val=game.duration; maxTime.date=game.date;}
-    if(game.duration<minTime.val){minTime.val=game.duration; minTime.date=game.date;}
+
+    if(game.duration>maxTime.val){
+      maxTime.val=game.duration;
+      maxTime.date=game.date;
+    }
+
+    if(game.duration<minTime.val){
+      minTime.val=game.duration;
+      minTime.date=game.date;
+    }
+
   });
-  let container=document.getElementById("statsList"); container.innerHTML="";
+
+  let container=document.getElementById("statsList");
+  container.innerHTML="";
+
   let bestPlayer = Object.keys(wins).reduce((a,b)=>wins[a]>wins[b]?a:b);
-  let maxPointsPlayer = Object.keys(totalPoints).reduce((a,b)=>totalPoints[a]>totalPoints[b]?a:b);
-  let minPointsPlayer = Object.keys(totalPoints).reduce((a,b)=>totalPoints[a]<totalPoints[b]?a:b);
 
   container.innerHTML+=`<b>Igrac sa najvise pobjeda: ${wins[bestPlayer]}, ${bestPlayer}</b><br>`;
-  Object.keys(wins).forEach(p=>container.innerHTML+=`${p}: ${wins[p]} pobjeda<br>`);
-  container.innerHTML+=`<b>Igrac sa najvise poena: ${maxPointsPlayer}, ${totalPoints[maxPointsPlayer]}</b><br>`;
-  container.innerHTML+=`<b>Igrac sa najmanje poena: ${minPointsPlayer}, ${totalPoints[minPointsPlayer]}</b><br>`;
-  container.innerHTML+=`<b>Najduza partija: ${formatTime(maxTime.val)}, ${formatDate(maxTime.date)}</b><br>`;
-  container.innerHTML+=`<b>Najkraca partija: ${formatTime(minTime.val)}, ${formatDate(minTime.date)}</b><br>`;
+
+  Object.keys(wins).forEach(p=>{
+    container.innerHTML+=`${p}: ${wins[p]} pobjeda<br>`;
+  });
+
+  container.innerHTML+=`<br><b>Ukupni poeni igraca:</b><br>`;
+
+  Object.keys(totalPoints).forEach(p=>{
+    container.innerHTML+=`${p}: ${totalPoints[p]} poena<br>`;
+  });
+
+  container.innerHTML+=`<br><b>Najvise poena u jednoj partiji:</b> ${maxGamePoints.player}, ${maxGamePoints.val}<br>`;
+  container.innerHTML+=`<b>Najmanje poena u jednoj partiji:</b> ${minGamePoints.player}, ${minGamePoints.val}<br>`;
+
+  container.innerHTML+=`<br><b>Najduza partija:</b> ${formatTime(maxTime.val)}, ${formatDate(maxTime.date)}<br>`;
+  container.innerHTML+=`<b>Najkraca partija:</b> ${formatTime(minTime.val)}, ${formatDate(minTime.date)}<br>`;
 }
 
 // Izbacivanje igraca
