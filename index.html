@@ -93,97 +93,275 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
 let playerNames=[], totals=[], roundHistory=[], roundCount=0, previousPage=1;
 let roundStartTime=null, gameStartTime=null;
 
-function toggleDark(){
-  document.body.classList.toggle("dark");
+function toggleDark(){document.body.classList.toggle("dark");}
+function showPage(n){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.getElementById("page"+n).classList.add("active");}
+
+// Nastavi prethodnu igru
+window.onload = function(){
+  const saved = localStorage.getItem("remiCurrentGame");
+  if(saved){
+    if(confirm("Postoji nedovrsena igra. Zelite li da nastavite?")){
+      const state = JSON.parse(saved);
+      playerNames = state.playerNames;
+      totals = state.totals;
+      roundHistory = state.roundHistory;
+      roundCount = state.roundCount;
+      gameStartTime = new Date().getTime() - state.elapsedTime;
+      createBoard();
+      showPage(3);
+    } else { localStorage.removeItem("remiCurrentGame"); }
+  }
+};
+
+function saveCurrentGame() {
+  const elapsedTime = gameStartTime ? new Date().getTime() - gameStartTime : 0;
+  const gameState = {playerNames, totals, roundHistory, roundCount, elapsedTime};
+  localStorage.setItem("remiCurrentGame", JSON.stringify(gameState));
 }
 
-function showPage(n){
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  document.getElementById("page" + n).classList.add("active");
-}
-
-// Funkcija za prikaz tabele sa dodatom plavom linijom na kraju svakog ciklusa
-function openTable() {
-  showPage(4);
-  let table = document.getElementById("roundTable");
-  table.innerHTML = "";
-  
-  // Dodavanje zaglavlja tabele
-  let header = "<tr>";
-  playerNames.forEach((p) => (header += "<th>" + p + "</th>"));
-  header += "<th class='timeCol'>Vrijeme</th></tr>";
-  table.innerHTML += header;
-
-  // Praćenje suma i dodavanje redova sa poenima
-  let sums = new Array(playerNames.length).fill(0);
-  roundHistory.forEach((r, i) => {
-    r.slice(0, playerNames.length).forEach((v, j) => {
-      sums[j] += v;
-    });
-    let roundTime = r[r.length - 1];
-    let row = "<tr>";
-    sums.forEach((v) => (row += "<td>" + v + "</td>"));
-    row += "<td class='timeCol'>" + formatTime(roundTime) + "</td></tr>";
-    
-    // Dodavanje ciklusne linije na kraju svakog ciklusa
-    if ((i + 1) % playerNames.length == 0) { 
-      row = `<tr class='cycleLine'>` + row.replace(/<td class='timeCol'>.*<\/td>/, "<td class='timeCol'>" + formatTime(roundTime) + "</td>") + "</tr>";
-    }
-    table.innerHTML += row;
-  });
-}
-
-// Ostale funkcije
 function selectPlayers(num){
   showPage(2);
-  let c = document.getElementById("playersContainer");
-  c.innerHTML = "";
-  for (let i = 1; i <= num; i++){
-    c.innerHTML += `<label>Igrac ${i}</label><input id="player${i}">`;
-  }
+  let c=document.getElementById("playersContainer");
+  c.innerHTML="";
+  for(let i=1;i<=num;i++){ c.innerHTML+=`<label>Igrac ${i}</label><input id="player${i}">`; }
 }
 
 function startGame(){
-  playerNames = [];
-  totals = [];
-  roundHistory = [];
-  roundCount = 0;
-  let inputs = document.querySelectorAll("#playersContainer input");
-  inputs.forEach((p, i) => {
-    let name = p.value || "Igrac " + (i + 1);
-    playerNames.push(name);
-    totals.push(0);
-  });
-  gameStartTime = new Date().getTime();
-  roundStartTime = new Date().getTime();
+  playerNames=[], totals=[], roundHistory=[], roundCount=0;
+  let inputs=document.querySelectorAll("#playersContainer input");
+  inputs.forEach((p,i)=>{let name=p.value||"Igrac "+(i+1); playerNames.push(name); totals.push(0);});
+  gameStartTime=new Date().getTime();
+  roundStartTime=new Date().getTime();
   createBoard();
   saveCurrentGame();
   showPage(3);
 }
 
+function currentDealer(){return roundCount%playerNames.length;}
+
 function createBoard(){
-  let board = document.getElementById("gameBoard");
-  board.innerHTML = "";
-  let dealer = currentDealer();
-  playerNames.forEach((name, i) => {
-    let label = (i == dealer) ? "Dijeli:" : "";
-    board.innerHTML += `<div class="dealer">${label}</div>
+  let board=document.getElementById("gameBoard");
+  board.innerHTML="";
+  let dealer=currentDealer();
+  playerNames.forEach((name,i)=>{
+    let label=(i==dealer)?"Dijeli:":"";
+    board.innerHTML+=`<div class="dealer">${label}</div>
       <div class="playerName">${name}</div>
       <input type="number" class="scoreInput" id="score${i}">
       <div class="totalScore" id="total${i}">${totals[i]}</div>`;
   });
 }
 
-function currentDealer(){
-  return roundCount % playerNames.length;
+function formatTime(seconds){
+  let h=Math.floor(seconds/3600); 
+  let m=Math.floor((seconds%3600)/60);
+  return (h<10?"0"+h:h)+":"+(m<10?"0"+m:m);
 }
 
-function formatTime(seconds){
-  let h = Math.floor(seconds / 3600); 
-  let m = Math.floor((seconds % 3600) / 60);
-  return (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m);
+function formatDate(dateStr){
+  let d=new Date(dateStr);
+  let y=("0"+d.getFullYear()).slice(-2);
+  let m=("0"+(d.getMonth()+1)).slice(-2);
+  let day=("0"+d.getDate()).slice(-2);
+  return y+":"+m+":"+day;
+}
+
+function addScore(){
+  let round=[];
+  let roundEndTime = new Date().getTime();
+  let roundDuration = Math.round((roundEndTime - roundStartTime)/1000);
+  roundStartTime = roundEndTime;
+
+  playerNames.forEach((p,i)=>{
+    let val=document.getElementById("score"+i).value;
+    if(val==="") val=0;
+    val=parseInt(val);
+    totals[i]+=val;
+    document.getElementById("total"+i).innerText=totals[i];
+    round.push(val);
+    document.getElementById("score"+i).value="";
+  });
+  round.push(roundDuration);
+  roundHistory.push(round);
+  roundCount++;
+  createBoard();
+  saveCurrentGame();
+}
+
+function removeLast(){
+  if(roundHistory.length==0)return;
+  let last=roundHistory.pop();
+  last.slice(0,playerNames.length).forEach((v,i)=>{totals[i]-=v;});
+  roundCount--;
+  createBoard();
+  saveCurrentGame();
+}
+
+function newGame(){
+  if(roundHistory.length>0){
+    let save = confirm("Sacuvati trenutnu igru?");
+    if(save){ saveGame(); localStorage.removeItem("remiCurrentGame"); resetGameState(); showPage(1); return; }
+    let dont = confirm("Pokrenuti novu igru bez cuvanja?");
+    if(dont){ localStorage.removeItem("remiCurrentGame"); resetGameState(); showPage(1); return; }
+  } else { localStorage.removeItem("remiCurrentGame"); resetGameState(); showPage(1); }
+}
+
+function resetGameState(){
+  playerNames=[]; totals=[]; roundHistory=[]; roundCount=0;
+  roundStartTime=null; gameStartTime=null;
+  document.getElementById("gameBoard").innerHTML="";
+  document.querySelectorAll("#playersContainer input").forEach(i=>i.value="");
+}
+
+function saveGame(){
+  let archive=JSON.parse(localStorage.getItem("remiArchive"))||[];
+  let totalGameTime=Math.round((new Date().getTime()-gameStartTime)/1000);
+  archive.push({date:new Date().toLocaleString(),players:playerNames,scores:totals,duration:totalGameTime});
+  localStorage.setItem("remiArchive",JSON.stringify(archive));
+}
+
+function openTable(){
+  showPage(4);
+  let table=document.getElementById("roundTable");
+  table.innerHTML="";
+  let header="<tr>";
+  playerNames.forEach(p=>header+="<th>"+p+"</th>");
+  header+="<th class='timeCol'>Vrijeme</th></tr>";
+  table.innerHTML+=header;
+
+  let sums=new Array(playerNames.length).fill(0);
+  roundHistory.forEach((r,i)=>{
+    r.slice(0,playerNames.length).forEach((v,j)=>{sums[j]+=v;});
+    let roundTime=r[r.length-1];
+    let row="<tr>";
+    sums.forEach(v=>row+="<td>"+v+"</td>");
+    row+="<td class='timeCol'>"+formatTime(roundTime)+"</td></tr>";
+    if((i+1)%playerNames.length==0){ row="<tr class='cycleLine'>"+row.replace(/<td class='timeCol'>.*<\/td>/,"<td class='timeCol'>"+formatTime(roundTime)+"</td>")+"</tr>"; }
+    table.innerHTML+=row;
+  });
+}
+
+// ARCHIVE
+function openArchive(){previousPage=3; showPage(5); loadArchive();}
+function openArchiveFromMenu(){previousPage=1; showPage(5); loadArchive();}
+function closeArchive(){showPage(previousPage);}
+function loadArchive(){
+  let archive=JSON.parse(localStorage.getItem("remiArchive"))||[];
+  let container=document.getElementById("archiveList");
+  container.innerHTML="";
+  archive.forEach((game,index)=>{
+    let div=document.createElement("div");
+    div.className="archiveItem";
+    let html=`<input type="checkbox" value="${index}"> <b>${game.date}</b><br>`;
+    game.players.forEach((p,i)=>{html+=p+" : "+game.scores[i]+"<br>";});
+    html+=`<b>Trajanje partije: ${formatTime(game.duration)}</b>`;
+    div.innerHTML=html; container.appendChild(div);
+  });
+}
+function deleteSelected(){
+  let archive=JSON.parse(localStorage.getItem("remiArchive"))||[];
+  let checks=document.querySelectorAll("#archiveList input:checked"); let indexes=[];
+  checks.forEach(c=>indexes.push(parseInt(c.value)));
+  archive=archive.filter((g,i)=>!indexes.includes(i));
+  localStorage.setItem("remiArchive",JSON.stringify(archive));
+  loadArchive();
+}
+
+// STATISTICS
+function openStats(){
+
+  previousPage=document.querySelector("#page6").classList.contains("active")?previousPage:3;
+  showPage(6);
+
+  let archive=JSON.parse(localStorage.getItem("remiArchive"))||[];
+
+  let wins={}, totalPoints={};
+
+  let maxGamePoints={player:"",val:-Infinity};
+  let minGamePoints={player:"",val:Infinity};
+
+  let maxTime={val:-1,date:""};
+  let minTime={val:Infinity,date:""};
+
+  archive.forEach(game=>{
+
+    game.players.forEach((p,i)=>{
+
+      if(!wins[p]) wins[p]=0;
+      if(!totalPoints[p]) totalPoints[p]=0;
+
+      let score=game.scores[i];
+
+      // ukupni poeni svih partija
+      totalPoints[p]+=score;
+
+      // rekord najvise poena u jednoj partiji
+      if(score>maxGamePoints.val){
+        maxGamePoints.val=score;
+        maxGamePoints.player=p;
+      }
+
+      // rekord najmanje poena u jednoj partiji
+      if(score<minGamePoints.val){
+        minGamePoints.val=score;
+        minGamePoints.player=p;
+      }
+
+    });
+
+    let minScore=Math.min(...game.scores);
+    let winnerIndex=game.scores.indexOf(minScore);
+    wins[game.players[winnerIndex]]++;
+
+    if(game.duration>maxTime.val){
+      maxTime.val=game.duration;
+      maxTime.date=game.date;
+    }
+
+    if(game.duration<minTime.val){
+      minTime.val=game.duration;
+      minTime.date=game.date;
+    }
+
+  });
+
+  let container=document.getElementById("statsList");
+  container.innerHTML="";
+
+  let bestPlayer = Object.keys(wins).reduce((a,b)=>wins[a]>wins[b]?a:b);
+
+  container.innerHTML+=`<b>Igrac sa najvise pobjeda: ${wins[bestPlayer]}, ${bestPlayer}</b><br>`;
+
+  Object.keys(wins).forEach(p=>{
+    container.innerHTML+=`${p}: ${wins[p]} pobjeda<br>`;
+  });
+
+  container.innerHTML+=`<br><b>Ukupni poeni igraca:</b><br>`;
+
+  Object.keys(totalPoints).forEach(p=>{
+    container.innerHTML+=`${p}: ${totalPoints[p]} poena<br>`;
+  });
+
+  container.innerHTML+=`<br><b>Najvise poena u jednoj partiji:</b> ${maxGamePoints.player}, ${maxGamePoints.val}<br>`;
+  container.innerHTML+=`<b>Najmanje poena u jednoj partiji:</b> ${minGamePoints.player}, ${minGamePoints.val}<br>`;
+
+  container.innerHTML+=`<br><b>Najduza partija:</b> ${formatTime(maxTime.val)}, ${formatDate(maxTime.date)}<br>`;
+  container.innerHTML+=`<b>Najkraca partija:</b> ${formatTime(minTime.val)}, ${formatDate(minTime.date)}<br>`;
+}
+
+// Izbacivanje igraca
+function removePlayer(){
+  let name=prompt("Ime igraca za izbacivanje:");
+  let index=playerNames.indexOf(name); if(index==-1)return;
+  playerNames.splice(index,1); totals.splice(index,1);
+  roundHistory.forEach(r=>r.splice(index,1));
+  createBoard(); saveCurrentGame();
 }
 </script>
-
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js');
+}
+</script>
 </body>
 </html>
