@@ -208,6 +208,15 @@ function selectPlayers(num){
 
 }
 
+function showArchivedTable(index){
+  let archive = JSON.parse(localStorage.getItem("remiArchive")) || [];
+  if(!archive[index] || !archive[index].tableHTML) return;
+
+  showPage(4);
+  let table = document.getElementById("roundTable");
+  table.innerHTML = archive[index].tableHTML;
+}
+
 function startGame(){
 
   playerNames=[], totals=[], roundHistory=[], roundCount=0;
