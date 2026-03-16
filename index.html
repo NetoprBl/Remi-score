@@ -54,6 +54,7 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
 <div id="page2" class="page">
   <div class="title">Upisi imena igraca</div>
   <div id="playersContainer" class="players"></div>
+  <button class="btn" onclick="addNewPlayer()">Dodaj novog igraca</button>
   <button class="btn" onclick="showPage(1)">Nazad</button>
   <button class="btn" onclick="startGame()">Kreni</button>
 </div>
@@ -100,6 +101,7 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
 </div>
 
 <script>
+let playersDB = JSON.parse(localStorage.getItem("remiPlayersDB")) || [];
 let playerNames=[], totals=[], roundHistory=[], roundCount=0, previousPage=1;
 let roundStartTime=null, gameStartTime=null;
 
@@ -129,22 +131,86 @@ function saveCurrentGame() {
   localStorage.setItem("remiCurrentGame", JSON.stringify(gameState));
 }
 
+function addNewPlayer(){
+
+  let name = prompt("Unesite ime igraca:");
+
+  if(!name) return;
+
+  name = name.trim();
+
+  if(name === ""){
+    alert("Neispravno ime.");
+    return;
+  }
+
+  // sprječava duplikate (case-insensitive)
+  let exists = playersDB.some(p => p.toLowerCase() === name.toLowerCase());
+
+  if(exists){
+    alert("Igrac vec postoji.");
+    return;
+  }
+
+  playersDB.push(name);
+  localStorage.setItem("remiPlayersDB", JSON.stringify(playersDB));
+
+  alert("Igrac dodat.");
+
+  // osvježi dropdownove
+  selectPlayers(document.querySelectorAll("#playersContainer select").length);
+
+}
+
 function selectPlayers(num){
+
   showPage(2);
+
   let c=document.getElementById("playersContainer");
   c.innerHTML="";
-  for(let i=1;i<=num;i++){ c.innerHTML+=`<label>Igrac ${i}</label><input id="player${i}">`; }
+
+  for(let i=1;i<=num;i++){
+
+    let options = playersDB.map(p=>`<option value="${p}">${p}</option>`).join("");
+
+    c.innerHTML += `
+      <label>Igrac ${i}</label>
+      <select id="player${i}">
+        <option value="">-- izaberi igraca --</option>
+        ${options}
+      </select>
+    `;
+  }
+
 }
 
 function startGame(){
+
   playerNames=[], totals=[], roundHistory=[], roundCount=0;
-  let inputs=document.querySelectorAll("#playersContainer input");
-  inputs.forEach((p,i)=>{let name=p.value||"Igrac "+(i+1); playerNames.push(name); totals.push(0);});
+
+  let selects=document.querySelectorAll("#playersContainer select");
+
+  selects.forEach((s,i)=>{
+
+    let name=s.value;
+
+    if(!name){
+      alert("Izaberite igraca za sve pozicije.");
+      throw "Missing player";
+    }
+
+    playerNames.push(name);
+    totals.push(0);
+
+  });
+
   gameStartTime=new Date().getTime();
   roundStartTime=new Date().getTime();
+
   createBoard();
   saveCurrentGame();
   showPage(3);
+
 }
 
 function currentDealer(){return roundCount%playerNames.length;}
