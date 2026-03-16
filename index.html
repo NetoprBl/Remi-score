@@ -85,6 +85,9 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
   <h3>Arhiva</h3>
   <button class="btn" onclick="openStats()">Statistika</button>
   <div id="archiveList"></div>
+  <button class="btn" onclick="exportArchive()">Backup arhive</button>
+<button class="btn" onclick="importArchive()">Vrati arhivu</button>
+<input type="file" id="importFile" accept=".json" style="display:none">
   <button class="btn" onclick="deleteSelected()">Obrisi oznacene</button>
   <button class="btn" onclick="closeArchive()">Nazad</button>
 </div>
@@ -382,6 +385,74 @@ function removePlayer(){
   roundHistory.forEach(r=>r.splice(index,1));
   createBoard(); saveCurrentGame();
 }
+// 📥 EXPORT — Backup arhive
+function exportArchive(){
+
+  let archive = localStorage.getItem("remiArchive");
+
+  if(!archive){
+    alert("Nema arhive za backup.");
+    return;
+  }
+
+  let blob = new Blob([archive], {type:"application/json"});
+
+  let a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "remi_arhiva_backup.json";
+  a.click();
+
+}
+
+
+// 📤 IMPORT — Vraćanje arhive
+function importArchive(){
+
+  document.getElementById("importFile").click();
+
+}
+
+
+// Kada korisnik odabere fajl
+document.getElementById("importFile").addEventListener("change", function(e){
+
+  let file = e.target.files[0];
+  if(!file) return;
+
+  let reader = new FileReader();
+
+  reader.onload = function(event){
+
+    try{
+
+      let data = JSON.parse(event.target.result);
+
+      if(!Array.isArray(data)){
+        alert("Neispravan fajl.");
+        return;
+      }
+
+      let replace = confirm("Zamijeniti postojeću arhivu?");
+      
+      if(replace){
+        localStorage.setItem("remiArchive", JSON.stringify(data));
+      } else {
+        let existing = JSON.parse(localStorage.getItem("remiArchive")) || [];
+        localStorage.setItem("remiArchive", JSON.stringify(existing.concat(data)));
+      }
+
+      alert("Arhiva uspješno učitana.");
+      loadArchive();
+
+    } catch(err){
+      alert("Greška pri učitavanju fajla.");
+    }
+
+  };
+
+  reader.readAsText(file);
+
+});
 </script>
 <script>
 if ('serviceWorker' in navigator) {
