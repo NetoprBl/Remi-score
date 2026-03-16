@@ -232,6 +232,8 @@ function startGame(){
   roundStartTime=new Date().getTime();
 
   createBoard();
+  // RESET labela ruka
+  document.getElementById("handLabel").innerText = "Ruka: 1";
   saveCurrentGame();
   showPage(3);
 
@@ -323,6 +325,8 @@ function resetGameState(){
   roundStartTime=null; gameStartTime=null;
   document.getElementById("gameBoard").innerHTML="";
   document.querySelectorAll("#playersContainer input").forEach(i=>i.value="");
+  // RESET labela ruka
+  document.getElementById("handLabel").innerText = "Ruka: 1";
 }
 
 function saveGame(){
