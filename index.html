@@ -87,6 +87,9 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
   <button class="btn" onclick="openStats()">Statistika</button>
   <button class="btn" onclick="removePlayer()">Izbaci igraca</button>
   <button class="btn" onclick="toggleDark()">Dark mode</button>
+  <div id="cycleCounter" style="font-size:18px;font-weight:600;color:#007AFF;margin-bottom:10px;">
+  Ruka: 1
+</div>
   <div id="gameBoard"></div>
   <br>
   <button class="btn" onclick="addScore()">Upisi rundu</button>
@@ -236,6 +239,9 @@ function startGame(){
 function currentDealer(){return roundCount%playerNames.length;}
 
 function createBoard(){
+  // Ažuriranje broja ciklusa
+  document.getElementById("cycleCounter").innerText = "Ruka: " + (roundCount + 1);
+
   let board=document.getElementById("gameBoard");
   board.innerHTML="";
   let dealer=currentDealer();
