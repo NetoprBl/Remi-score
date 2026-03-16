@@ -221,24 +221,42 @@ function saveGame(){
 }
 
 function openTable(){
+
   showPage(4);
+
   let table=document.getElementById("roundTable");
   table.innerHTML="";
+
+  // HEADER
   let header="<tr>";
   playerNames.forEach(p=>header+="<th>"+p+"</th>");
   header+="<th class='timeCol'>Vrijeme</th></tr>";
   table.innerHTML+=header;
 
   let sums=new Array(playerNames.length).fill(0);
+
   roundHistory.forEach((r,i)=>{
+
+    // sabiranje rezultata
     r.slice(0,playerNames.length).forEach((v,j)=>{sums[j]+=v;});
+
     let roundTime=r[r.length-1];
-    let row="<tr>";
+
+    // da li je kraj ciklusa
+    let cycleClass = ((i+1) % playerNames.length === 0) ? "cycleLine" : "";
+
+    // RED
+    let row = "<tr class='"+cycleClass+"'>";
+
     sums.forEach(v=>row+="<td>"+v+"</td>");
-    row+="<td class='timeCol'>"+formatTime(roundTime)+"</td></tr>";
-    if((i+1)%playerNames.length==0){ row="<tr class='cycleLine'>"+row.replace(/<td class='timeCol'>.*<\/td>/,"<td class='timeCol'>"+formatTime(roundTime)+"</td>")+"</tr>"; }
+
+    row+="<td class='timeCol'>"+formatTime(roundTime)+"</td>";
+    row+="</tr>";
+
     table.innerHTML+=row;
+
   });
+
 }
 
 // ARCHIVE
