@@ -480,13 +480,18 @@ function loadArchive() {
 
       // Trajanje partije
       html += `<b>Trajanje: ${formatTime(game.duration)}</b>`;
-
+div.innerHTML = html;
       // Dugme za tabelu ako postoji
-      if (game.roundHistory && game.roundHistory.length > 0) {
-        html += `<br><button class="btn" onclick="showTableFromArchive(${index})">Tabela</button>`;
-      }
+  if (game.roundHistory && game.roundHistory.length > 0) {
+    let btn = document.createElement("button");
+    btn.className = "btn";
+    btn.textContent = "Tabela";
+    btn.addEventListener("click", () => showTableFromArchive(index));
+    div.appendChild(document.createElement("br"));
+    div.appendChild(btn);
+  }
 
-      div.innerHTML = html;
+      
       gamesDiv.appendChild(div);
     });
 
