@@ -87,9 +87,10 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
   <button class="btn" onclick="openStats()">Statistika</button>
   <button class="btn" onclick="removePlayer()">Izbaci igraca</button>
   <button class="btn" onclick="toggleDark()">Dark mode</button>
-  <div id="cycleCounter" style="font-size:18px;font-weight:600;color:#007AFF;margin-bottom:10px;">
-  Ruka: 1
-</div>
+  <!-- Ruka -->
+  <div id="handLabel" style="text-align:right; font-size:18px; color:#007AFF; margin-top:5px; margin-bottom:5px;">
+    Ruka: 1
+  </div>
   <div id="gameBoard"></div>
   <br>
   <button class="btn" onclick="addScore()">Upisi rundu</button>
@@ -251,7 +252,7 @@ function createBoard(){
       <input type="number" class="scoreInput" id="score${i}">
       <div style="position: relative;">
         <div class="totalScore" id="total${i}">${totals[i]}</div>
-        <div style="position: absolute; right: 0; top: 22px; font-size:14px; color:#007AFF;">Ruka: ${roundCount + 1}</div>
+        
       </div>
     `;
   });
@@ -286,9 +287,14 @@ function addScore(){
     round.push(val);
     document.getElementById("score"+i).value="";
   });
+
   round.push(roundDuration);
   roundHistory.push(round);
   roundCount++;
+
+  // Ažuriranje labela ruke
+  document.getElementById("handLabel").innerText = "Ruka: " + (roundCount + 1);
+
   createBoard();
   saveCurrentGame();
 }
