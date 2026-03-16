@@ -388,7 +388,7 @@ function openStats(){
 
   let archive=JSON.parse(localStorage.getItem("remiArchive"))||[];
 
-  let wins={}, totalPoints={};
+  let wins={}, totalPoints={}, gamesPlayed={};
 
   let maxGamePoints={player:"",val:-Infinity};
   let minGamePoints={player:"",val:Infinity};
@@ -402,8 +402,12 @@ function openStats(){
 
       if(!wins[p]) wins[p]=0;
       if(!totalPoints[p]) totalPoints[p]=0;
+      if(!gamesPlayed[p]) gamesPlayed[p]=0;
 
       let score=game.scores[i];
+
+      // ⭐ broj odigranih partija
+      gamesPlayed[p]++;
 
       // ukupni poeni svih partija
       totalPoints[p]+=score;
@@ -422,10 +426,12 @@ function openStats(){
 
     });
 
+    // pobjednik (najmanje poena)
     let minScore=Math.min(...game.scores);
     let winnerIndex=game.scores.indexOf(minScore);
     wins[game.players[winnerIndex]]++;
 
+    // trajanja
     if(game.duration>maxTime.val){
       maxTime.val=game.duration;
       maxTime.date=game.date;
@@ -441,23 +447,38 @@ function openStats(){
   let container=document.getElementById("statsList");
   container.innerHTML="";
 
+  if(Object.keys(wins).length===0){
+    container.innerHTML="Nema podataka.";
+    return;
+  }
+
   let bestPlayer = Object.keys(wins).reduce((a,b)=>wins[a]>wins[b]?a:b);
 
-  container.innerHTML+=`<b>Igrac sa najvise pobjeda: ${wins[bestPlayer]}, ${bestPlayer}</b><br>`;
+  container.innerHTML+=`<b>Igrac sa najvise pobjeda: ${wins[bestPlayer]}, ${bestPlayer}</b><br><br>`;
 
+  // ⭐ POBJDE
+  container.innerHTML+=`<b>Pobjede:</b><br>`;
   Object.keys(wins).forEach(p=>{
     container.innerHTML+=`${p}: ${wins[p]} pobjeda<br>`;
   });
 
-  container.innerHTML+=`<br><b>Ukupni poeni igraca:</b><br>`;
+  // ⭐ ODIGRANE PARTIJE
+  container.innerHTML+=`<br><b>Odigrane partije:</b><br>`;
+  Object.keys(gamesPlayed).forEach(p=>{
+    container.innerHTML+=`${p}: ${gamesPlayed[p]} partija<br>`;
+  });
 
+  // ⭐ UKUPNI POENI
+  container.innerHTML+=`<br><b>Ukupni poeni igraca:</b><br>`;
   Object.keys(totalPoints).forEach(p=>{
     container.innerHTML+=`${p}: ${totalPoints[p]} poena<br>`;
   });
 
+  // ⭐ REKORDI
   container.innerHTML+=`<br><b>Najvise poena u jednoj partiji:</b> ${maxGamePoints.player}, ${maxGamePoints.val}<br>`;
   container.innerHTML+=`<b>Najmanje poena u jednoj partiji:</b> ${minGamePoints.player}, ${minGamePoints.val}<br>`;
 
+  // ⭐ TRAJANJE
   container.innerHTML+=`<br><b>Najduza partija:</b> ${formatTime(maxTime.val)}, ${formatDate(maxTime.date)}<br>`;
   container.innerHTML+=`<b>Najkraca partija:</b> ${formatTime(minTime.val)}, ${formatDate(minTime.date)}<br>`;
 }
