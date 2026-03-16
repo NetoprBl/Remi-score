@@ -330,10 +330,23 @@ function resetGameState(){
 }
 
 function saveGame(){
-  let archive=JSON.parse(localStorage.getItem("remiArchive"))||[];
-  let totalGameTime=Math.round((new Date().getTime()-gameStartTime)/1000);
-  archive.push({date:new Date().toLocaleString(),players:playerNames,scores:totals,duration:totalGameTime});
-  localStorage.setItem("remiArchive",JSON.stringify(archive));
+  let archive = JSON.parse(localStorage.getItem("remiArchive")) || [];
+  let totalGameTime = Math.round((new Date().getTime() - gameStartTime)/1000);
+
+  // Kopiraj tabelu rundi ako postoji
+  let tableHTML = "";
+  let table = document.getElementById("roundTable");
+  if(table) tableHTML = table.innerHTML;
+
+  archive.push({
+    date: new Date().toLocaleString(),
+    players: playerNames,
+    scores: totals,
+    duration: totalGameTime,
+    tableHTML: tableHTML // nova stavka
+  });
+
+  localStorage.setItem("remiArchive", JSON.stringify(archive));
 }
 
 function openTable(){
@@ -379,30 +392,25 @@ function openTable(){
 function openArchive(){previousPage=3; showPage(5); loadArchive();}
 function openArchiveFromMenu(){previousPage=1; showPage(5); loadArchive();}
 function closeArchive(){showPage(previousPage);}
-function loadArchive(){
-
+function loadArchive() {
   let archive = JSON.parse(localStorage.getItem("remiArchive")) || [];
   let container = document.getElementById("archiveList");
   container.innerHTML = "";
 
-  if(archive.length === 0){
+  if (archive.length === 0) {
     container.innerHTML = "Nema sačuvanih partija.";
     return;
   }
 
-  // grupisanje po godina-mjesec
+  // Grupisanje po godina-mjesec
   let groups = {};
-
   archive.forEach((game, index) => {
-
     let d = new Date(game.date);
-
     let year = d.getFullYear();
     let month = d.getMonth(); // 0-11
-
     let key = year + "-" + month;
 
-    if(!groups[key]){
+    if (!groups[key]) {
       groups[key] = {
         year: year,
         month: month,
@@ -410,19 +418,17 @@ function loadArchive(){
       };
     }
 
-    groups[key].games.push({game, index});
-
+    groups[key].games.push({ game, index });
   });
 
-  // sortiranje po novijem
-  let sortedKeys = Object.keys(groups).sort((a,b)=> b.localeCompare(a));
+  // Sortiranje po novijem
+  let sortedKeys = Object.keys(groups).sort((a, b) => b.localeCompare(a));
 
   let now = new Date();
   let currentYear = now.getFullYear();
   let currentMonth = now.getMonth();
 
   sortedKeys.forEach(key => {
-
     let group = groups[key];
 
     let monthNames = [
@@ -438,7 +444,6 @@ function loadArchive(){
     header.style.fontWeight = "bold";
     header.style.cursor = "pointer";
     header.style.background = "#e9f2ff";
-
     header.innerText = monthNames[group.month] + " " + group.year;
 
     container.appendChild(header);
@@ -448,35 +453,73 @@ function loadArchive(){
     gamesDiv.style.display = isCurrent ? "block" : "none";
 
     header.onclick = () => {
-      gamesDiv.style.display =
-        gamesDiv.style.display === "none" ? "block" : "none";
+      gamesDiv.style.display = gamesDiv.style.display === "none" ? "block" : "none";
     };
 
     // PARTIJE U MJESECU
-    group.games.forEach(({game, index}) => {
-
+    group.games.forEach(({ game, index }) => {
       let div = document.createElement("div");
       div.className = "archiveItem";
 
       let html = `<input type="checkbox" value="${index}"> 
                   <b>${game.date}</b><br>`;
 
-      game.players.forEach((p,i)=>{
+      // Igrači i poeni
+      game.players.forEach((p, i) => {
         html += p + " : " + game.scores[i] + "<br>";
       });
 
+      // Trajanje partije
       html += `<b>Trajanje: ${formatTime(game.duration)}</b>`;
+
+      // Dugme za tabelu ako postoji
+      if (game.roundHistory && game.roundHistory.length > 0) {
+        html += `<br><button class="btn" onclick="showTableFromArchive(${index})">Tabela</button>`;
+      }
 
       div.innerHTML = html;
       gamesDiv.appendChild(div);
-
     });
 
     container.appendChild(gamesDiv);
-
   });
 
 }
+
+// Funkcija koja otvara tabelu za odabranu arhiviranu partiju
+function showTableFromArchive(index) {
+  let archive = JSON.parse(localStorage.getItem("remiArchive")) || [];
+  let game = archive[index];
+  if (!game || !game.roundHistory) return;
+
+  showPage(4); // otvori tabelu
+  let table = document.getElementById("roundTable");
+  table.innerHTML = "";
+
+  // Header tabele
+  let header = "<tr>";
+  game.players.forEach(p => header += "<th>" + p + "</th>");
+  header += "<th class='timeCol'>Vrijeme</th></tr>";
+  table.innerHTML += header;
+
+  // Prikaz rundi
+  let sums = new Array(game.players.length).fill(0);
+  game.roundHistory.forEach((r, i) => {
+    r.slice(0, game.players.length).forEach((v, j) => { sums[j] += v; });
+    let roundTime = r[r.length - 1];
+    let row = "<tr>";
+    sums.forEach(v => row += "<td>" + v + "</td>");
+    row += "<td class='timeCol'>" + formatTime(roundTime) + "</td></tr>";
+
+    // Plava linija ciklusa
+    if ((i + 1) % game.players.length === 0) {
+      row = "<tr class='cycleLine'>" + row.replace(/<td class='timeCol'>.*<\/td>/, "<td class='timeCol'>" + formatTime(roundTime) + "</td>") + "</tr>";
+    }
+
+    table.innerHTML += row;
+  });
+}
+
 function deleteSelected(){
   let archive=JSON.parse(localStorage.getItem("remiArchive"))||[];
   let checks=document.querySelectorAll("#archiveList input:checked"); let indexes=[];
@@ -615,6 +658,8 @@ function exportArchive(){
   a.click();
 
 }
+
+
 
 
 // 📤 IMPORT — Vraćanje arhive
