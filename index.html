@@ -239,18 +239,21 @@ function startGame(){
 function currentDealer(){return roundCount%playerNames.length;}
 
 function createBoard(){
-  // Ažuriranje broja ciklusa
-  document.getElementById("cycleCounter").innerText = "Ruka: " + (roundCount + 1);
+  let board = document.getElementById("gameBoard");
+  board.innerHTML = "";
+  let dealer = currentDealer();
 
-  let board=document.getElementById("gameBoard");
-  board.innerHTML="";
-  let dealer=currentDealer();
-  playerNames.forEach((name,i)=>{
-    let label=(i==dealer)?"Dijeli:":"";
-    board.innerHTML+=`<div class="dealer">${label}</div>
+  playerNames.forEach((name, i) => {
+    let label = (i == dealer) ? "Dijeli:" : "";
+    board.innerHTML += `
+      <div class="dealer">${label}</div>
       <div class="playerName">${name}</div>
       <input type="number" class="scoreInput" id="score${i}">
-      <div class="totalScore" id="total${i}">${totals[i]}</div>`;
+      <div style="position: relative;">
+        <div class="totalScore" id="total${i}">${totals[i]}</div>
+        <div style="position: absolute; right: 0; top: 22px; font-size:14px; color:#007AFF;">Ruka: ${roundCount + 1}</div>
+      </div>
+    `;
   });
 }
 
