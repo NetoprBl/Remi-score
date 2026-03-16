@@ -292,8 +292,9 @@ function addScore(){
   roundHistory.push(round);
   roundCount++;
 
-  // Ažuriranje labela ruke
-  document.getElementById("handLabel").innerText = "Ruka: " + (roundCount + 1);
+  // Izračun ciklusa: koliko puta svi igrači su odigrali runde
+  let currentCycle = Math.floor(roundCount / playerNames.length) + 1;
+  document.getElementById("handLabel").innerText = "Ruka: " + currentCycle;
 
   createBoard();
   saveCurrentGame();
