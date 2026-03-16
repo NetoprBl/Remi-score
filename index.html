@@ -274,17 +274,102 @@ function openArchive(){previousPage=3; showPage(5); loadArchive();}
 function openArchiveFromMenu(){previousPage=1; showPage(5); loadArchive();}
 function closeArchive(){showPage(previousPage);}
 function loadArchive(){
-  let archive=JSON.parse(localStorage.getItem("remiArchive"))||[];
-  let container=document.getElementById("archiveList");
-  container.innerHTML="";
-  archive.forEach((game,index)=>{
-    let div=document.createElement("div");
-    div.className="archiveItem";
-    let html=`<input type="checkbox" value="${index}"> <b>${game.date}</b><br>`;
-    game.players.forEach((p,i)=>{html+=p+" : "+game.scores[i]+"<br>";});
-    html+=`<b>Trajanje partije: ${formatTime(game.duration)}</b>`;
-    div.innerHTML=html; container.appendChild(div);
+
+  let archive = JSON.parse(localStorage.getItem("remiArchive")) || [];
+  let container = document.getElementById("archiveList");
+  container.innerHTML = "";
+
+  if(archive.length === 0){
+    container.innerHTML = "Nema sačuvanih partija.";
+    return;
+  }
+
+  // grupisanje po godina-mjesec
+  let groups = {};
+
+  archive.forEach((game, index) => {
+
+    let d = new Date(game.date);
+
+    let year = d.getFullYear();
+    let month = d.getMonth(); // 0-11
+
+    let key = year + "-" + month;
+
+    if(!groups[key]){
+      groups[key] = {
+        year: year,
+        month: month,
+        games: []
+      };
+    }
+
+    groups[key].games.push({game, index});
+
   });
+
+  // sortiranje po novijem
+  let sortedKeys = Object.keys(groups).sort((a,b)=> b.localeCompare(a));
+
+  let now = new Date();
+  let currentYear = now.getFullYear();
+  let currentMonth = now.getMonth();
+
+  sortedKeys.forEach(key => {
+
+    let group = groups[key];
+
+    let monthNames = [
+      "Januar","Februar","Mart","April","Maj","Juni",
+      "Juli","Avgust","Septembar","Oktobar","Novembar","Decembar"
+    ];
+
+    let isCurrent = (group.year === currentYear && group.month === currentMonth);
+
+    // NASLOV MJESECA
+    let header = document.createElement("div");
+    header.className = "archiveItem";
+    header.style.fontWeight = "bold";
+    header.style.cursor = "pointer";
+    header.style.background = "#e9f2ff";
+
+    header.innerText = monthNames[group.month] + " " + group.year;
+
+    container.appendChild(header);
+
+    // KONTEJNER PARTIJA
+    let gamesDiv = document.createElement("div");
+    gamesDiv.style.display = isCurrent ? "block" : "none";
+
+    header.onclick = () => {
+      gamesDiv.style.display =
+        gamesDiv.style.display === "none" ? "block" : "none";
+    };
+
+    // PARTIJE U MJESECU
+    group.games.forEach(({game, index}) => {
+
+      let div = document.createElement("div");
+      div.className = "archiveItem";
+
+      let html = `<input type="checkbox" value="${index}"> 
+                  <b>${game.date}</b><br>`;
+
+      game.players.forEach((p,i)=>{
+        html += p + " : " + game.scores[i] + "<br>";
+      });
+
+      html += `<b>Trajanje: ${formatTime(game.duration)}</b>`;
+
+      div.innerHTML = html;
+      gamesDiv.appendChild(div);
+
+    });
+
+    container.appendChild(gamesDiv);
+
+  });
+
 }
 function deleteSelected(){
   let archive=JSON.parse(localStorage.getItem("remiArchive"))||[];
