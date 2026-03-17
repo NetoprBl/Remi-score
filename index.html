@@ -438,17 +438,32 @@ function saveGame(){
   let archive = JSON.parse(localStorage.getItem("remiArchive")) || [];
   let totalGameTime = Math.round((new Date().getTime() - gameStartTime)/1000);
 
-  // Kopiraj tabelu rundi ako postoji
+  // Kreiraj HTML tabele rundi iz roundHistory
   let tableHTML = "";
-  let table = document.getElementById("roundTable");
-  if(table) tableHTML = table.innerHTML;
+  if(roundHistory.length > 0){
+    // HEADER
+    tableHTML = "<tr>";
+    playerNames.forEach(p => tableHTML += "<th>" + p + "</th>");
+    tableHTML += "<th class='timeCol'>Vrijeme</th></tr>";
+
+    let sums = new Array(playerNames.length).fill(0);
+
+    roundHistory.forEach((r, i) => {
+      r.slice(0, playerNames.length).forEach((v, j) => { sums[j] += v; });
+      let roundTime = r[r.length-1];
+      let cycleClass = ((i+1) % playerNames.length === 0) ? "cycleLine" : "";
+      tableHTML += "<tr class='" + cycleClass + "'>";
+      sums.forEach(v => tableHTML += "<td>" + v + "</td>");
+      tableHTML += "<td class='timeCol'>" + formatTime(roundTime) + "</td></tr>";
+    });
+  }
 
   archive.push({
     date: new Date().toLocaleString(),
     players: playerNames,
     scores: totals,
     duration: totalGameTime,
-    tableHTML: tableHTML // nova stavka
+    tableHTML: tableHTML // sada uvijek sadrži tabelu
   });
 
   localStorage.setItem("remiArchive", JSON.stringify(archive));
@@ -511,37 +526,18 @@ function loadArchive() {
   let groups = {};
   archive.forEach((game, index) => {
     let d = new Date(game.date);
-    let year = d.getFullYear();
-    let month = d.getMonth(); // 0-11
-    let key = year + "-" + month;
-
-    if (!groups[key]) {
-      groups[key] = {
-        year: year,
-        month: month,
-        games: []
-      };
-    }
-
+    let key = d.getFullYear() + "-" + d.getMonth();
+    if(!groups[key]) groups[key] = { year: d.getFullYear(), month: d.getMonth(), games: [] };
     groups[key].games.push({ game, index });
   });
 
-  // Sortiranje po novijem
-  let sortedKeys = Object.keys(groups).sort((a, b) => b.localeCompare(a));
-
+  let sortedKeys = Object.keys(groups).sort((a,b) => b.localeCompare(a));
   let now = new Date();
-  let currentYear = now.getFullYear();
-  let currentMonth = now.getMonth();
 
   sortedKeys.forEach(key => {
     let group = groups[key];
-
-    let monthNames = [
-      "Januar","Februar","Mart","April","Maj","Juni",
-      "Juli","Avgust","Septembar","Oktobar","Novembar","Decembar"
-    ];
-
-    let isCurrent = (group.year === currentYear && group.month === currentMonth);
+    const monthNames = ["Januar","Februar","Mart","April","Maj","Juni","Juli","Avgust","Septembar","Oktobar","Novembar","Decembar"];
+    let isCurrent = (group.year === now.getFullYear() && group.month === now.getMonth());
 
     // NASLOV MJESECA
     let header = document.createElement("div");
@@ -550,7 +546,6 @@ function loadArchive() {
     header.style.cursor = "pointer";
     header.style.background = "#e9f2ff";
     header.innerText = monthNames[group.month] + " " + group.year;
-
     container.appendChild(header);
 
     // KONTEJNER PARTIJA
@@ -561,43 +556,32 @@ function loadArchive() {
       gamesDiv.style.display = gamesDiv.style.display === "none" ? "block" : "none";
     };
 
-    // PARTIJE U MJESECU
+    // PARTIJE
     group.games.forEach(({ game, index }) => {
       let div = document.createElement("div");
       div.className = "archiveItem";
 
       let html = `<input type="checkbox" value="${index}"> 
                   <b>${game.date}</b><br>`;
-
-      // Igrači i poeni
-      game.players.forEach((p, i) => {
-        html += p + " : " + game.scores[i] + "<br>";
-      });
-
-      // Trajanje partije
+      game.players.forEach((p,i)=>{ html += p + " : " + game.scores[i] + "<br>"; });
       html += `<b>Trajanje: ${formatTime(game.duration)}</b>`;
-div.innerHTML = html;
+      div.innerHTML = html;
+
       // Dugme za tabelu ako postoji
-  // Dugme za tabelu ako postoji
-if (game.tableHTML && game.tableHTML !== "") {
+      if(game.tableHTML && game.tableHTML !== ""){
+        let btn = document.createElement("button");
+        btn.className = "btn";
+        btn.textContent = "Tabela";
+        btn.addEventListener("click", () => showArchivedTable(index));
+        div.appendChild(document.createElement("br"));
+        div.appendChild(btn);
+      }
 
-  let btn = document.createElement("button");
-  btn.className = "btn";
-  btn.textContent = "Tabela";
-
-  btn.addEventListener("click", () => showArchivedTable(index));
-
-  div.appendChild(document.createElement("br"));
-  div.appendChild(btn);
-}
-
-      
       gamesDiv.appendChild(div);
     });
 
     container.appendChild(gamesDiv);
   });
-
 }
 
 // Funkcija koja otvara tabelu za odabranu arhiviranu partiju
