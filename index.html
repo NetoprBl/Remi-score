@@ -81,6 +81,54 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
   font-size: 16px;    /* ili ostavi kao trenutno */
   margin-left: 10px;  /* malo uvlačenje radi preglednosti */
 }
+
+/* Page1 centriranje */
+#page1 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* vertikalno centriranje */
+  align-items: center;     /* horizontalno centriranje */
+  height: 100vh;           /* zauzima cijeli ekran */
+  text-align: center;
+  gap: 20px;               /* razmak između redova */
+}
+
+/* Naslov */
+#page1 .title {
+  font-size: 22px;
+  color: #007AFF;
+  margin-bottom: 10px;
+}
+
+/* Red dugmadi za igrace */
+#page1 .playerButtons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;   /* razmak između dugmadi */
+}
+
+/* Red dugmadi za meni */
+#page1 .menuButtons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* Standardni stil dugmadi */
+#page1 .btn {
+  padding: 12px 18px;
+  border-radius: 14px;
+  border: 1px solid #007AFF;
+  background: white;
+  color: #007AFF;
+  font-size: 16px;
+  cursor: pointer;
+}
+#page1 .dark .btn {
+  background: #2c2c2e;
+  color: white;
+  border: 1px solid #555;
+}
 </style>
 </head>
 <body>
@@ -88,14 +136,21 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
 <!-- PAGE 1 -->
 <div id="page1" class="page active">
   <div class="title">Odaberi koliko igraca je u igri:</div>
-  <button class="btn" onclick="selectPlayers(2)">2</button>
-  <button class="btn" onclick="selectPlayers(3)">3</button>
-  <button class="btn" onclick="selectPlayers(4)">4</button>
-  <button class="btn" onclick="selectPlayers(5)">5</button>
-  <button class="btn" onclick="selectPlayers(6)">6</button>
-  <br><br>
-  <button class="btn" onclick="openArchiveFromMenu()">Arhiva</button>
-  <button class="btn" onclick="toggleDark()">Dark mode</button>
+
+  <!-- Red dugmadi za broj igraca -->
+  <div class="playerButtons">
+    <button class="btn" onclick="selectPlayers(2)">2</button>
+    <button class="btn" onclick="selectPlayers(3)">3</button>
+    <button class="btn" onclick="selectPlayers(4)">4</button>
+    <button class="btn" onclick="selectPlayers(5)">5</button>
+    <button class="btn" onclick="selectPlayers(6)">6</button>
+  </div>
+
+  <!-- Red dugmadi za Arhivu i Dark mode -->
+  <div class="menuButtons">
+    <button class="btn" onclick="openArchiveFromMenu()">Arhiva</button>
+    <button class="btn" onclick="toggleDark()">Dark mode</button>
+  </div>
 </div>
 
 <!-- PAGE 2 -->
