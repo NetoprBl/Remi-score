@@ -67,6 +67,14 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
   font-size: 20px;    /* 2px veće od trenutnih 18px */
 }
 
+/* Podnaslovi hand statistike */
+#handStatsList .handSubTitle {
+  font-weight: bold;
+  color: #007AFF;   /* plava boja */
+  font-size: 20px;  /* 2px veće nego prije */
+  margin-top: 10px;
+}
+
 /* PODACI ostaju crni i veličine kao sad */
 #statsList div, #handStatsList div, #statsList span, #handStatsList span {
   color: black;
@@ -228,6 +236,12 @@ function displayHandStats() {
     title.style.marginTop = "10px";
     title.textContent = handNames[type];
     container.appendChild(title);
+    
+    // Naslov handa
+const title = document.createElement("div");
+title.className = "handSubTitle";  // dodaj klasu
+title.textContent = handNames[type];
+container.appendChild(title);
 
     // Igrači sa brojem handova
     playerEntries.forEach(([name, count]) => {
