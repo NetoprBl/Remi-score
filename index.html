@@ -135,6 +135,7 @@ let handStats = JSON.parse(localStorage.getItem("remiHandStats")) || {
   "-400": {},  // Mali hand
   "-200": {},  // Donja karta / joker
   "-100": {},  // Kupljena karta
+  "-80": {},
   "-40": {}    // Standardno zatvaranje
 };
 function toggleDark(){document.body.classList.toggle("dark");}
@@ -169,6 +170,7 @@ function updateHandStats(round) {
     if(score === -400) incrementHand(player, "-400");
     else if(score === -200) incrementHand(player, "-200");
     else if(score === -100) incrementHand(player, "-100");
+    else if(score === -80) incrementHand(player, "-80");
     else if(score === -40) incrementHand(player, "-40");
   });
 
