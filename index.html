@@ -145,23 +145,43 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
   border: 1px solid #555;
 }
 
-/* Page3 centriranje */
+/* PAGE 3 */
 #page3 {
+  display: flex;
   flex-direction: column;
-  justify-content: center; /* vertikalno centriranje */
-  align-items: center;     /* horizontalno centriranje */
-  height: 100vh;           /* zauzima cijeli ekran */
-  text-align: center;
-  gap: 20px;               /* razmak između redova */
+  justify-content: flex-start;  /* elementi odozgo prema dole */
+  align-items: center;          /* horizontalno centrirani */
+  height: 100vh;                /* cijeli ekran */
+  padding: 20px;                /* malo razmaka sa vrha */
+  gap: 20px;                    /* razmak između sekcija */
 }
 
+/* Gornja dugmad - 2 reda x 2 kolone */
 #page3 .upperButtons {
+  display: grid;
+  grid-template-columns: repeat(2, auto); /* 2 kolone, širina po sadržaju */
+  grid-auto-rows: auto;                    /* visina po sadržaju */
+  gap: 10px 12px;                          /* vertikalni i horizontalni razmak */
+  justify-content: center;                  /* centrirano po horizontali */
+}
+
+/* Stil za ruku (hand) */
+#page3 .hand {
+  width: 100%;            /* zauzima cijelu širinu */
+  display: flex;
+  justify-content: flex-end;  /* desno poravnanje */
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+/* Donja dugmad - jedan red centriran */
+#page3 .downButtons {
   display: flex;
   justify-content: center;
-  gap: 8px;   /* razmak između dugmadi */
+  gap: 12px;              /* razmak između dugmadi */
 }
 
-/* Standardni stil dugmadi */
+/* Standardni stil dugmadi kao na drugim stranicama */
 #page3 .btn {
   padding: 12px 18px;
   border-radius: 14px;
@@ -170,6 +190,23 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
   color: #007AFF;
   font-size: 16px;
   cursor: pointer;
+}
+
+.dark #page3 .btn {
+  background: #2c2c2e;
+  color: white;
+  border: 1px solid #555;
+}
+
+/* Game board grid (ako želiš da bude isto kao prije) */
+#page3 #gameBoard {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr 1fr;
+  gap: 12px;
+  align-items: center;
+  justify-items: center;
+  margin-top: 10px;
+  width: 100%;
 }
 
 </style>
@@ -217,13 +254,17 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
   <button class="btn" onclick="toggleDark()">Dark mode</button>
   </div>
   <!-- Ruka -->
-  <div id="handLabel" style="text-align:right; font-size:18px; color:#007AFF; margin-top:5px; margin-bottom:5px;">
+  <div class="hand">
+    <div id="handLabel" style="text-align:right; font-size:18px; color:#007AFF; margin-top:5px; margin-bottom:5px;">
     Ruka: 1
+    </div>
   </div>
   <div id="gameBoard"></div>
   <br>
-  <button class="btn" onclick="addScore()">Upisi rundu</button>
-  <button class="btn" onclick="removeLast()">Ispravka</button>
+  <div class="downButtons">
+    <button class="btn" onclick="addScore()">Upisi rundu</button>
+     <button class="btn" onclick="removeLast()">Ispravka</button>
+  </div>
 </div>
 
 <!-- PAGE 4 TABELA -->
