@@ -235,7 +235,7 @@ function displayHandStats() {
     // Naslov handa
 const title = document.createElement("div");
 title.className = "handSubTitle";  // dodaj klasu
-title.textContent = handNames[type];
+title.innerHTML = handNames[type];
 container.appendChild(title);
 
     // Igrači sa brojem handova
