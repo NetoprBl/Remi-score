@@ -187,8 +187,9 @@ function displayHandStats() {
 
   const handNames = {
     "-400": "Mali hand −400",
-    "-200": "Hand sa donjom kartom / jokerom −200",
+    "-200": "Hand sa donjom kartom ili jokerom −200",
     "-100": "Hand sa kupljenom kartom −100",
+    "-80": "Standarno zatvaranje sa jokerom −80",
     "-40": "Standardno zatvaranje −40"
   };
 
@@ -360,6 +361,11 @@ function updateHandStats(round){
     if(score === -100){
       if(!handStats["-100"][player]) handStats["-100"][player] = 0;
       handStats["-100"][player]++;
+    }
+    
+    if(score === -80){
+      if(!handStats["-80"][player]) handStats["-80"][player] = 0;
+      handStats["-80"][player]++;
     }
 
     if(score === -40){
