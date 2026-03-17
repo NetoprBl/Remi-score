@@ -482,14 +482,18 @@ function loadArchive() {
       html += `<b>Trajanje: ${formatTime(game.duration)}</b>`;
 div.innerHTML = html;
       // Dugme za tabelu ako postoji
-  if (game.roundHistory && game.roundHistory.length > 0) {
-    let btn = document.createElement("button");
-    btn.className = "btn";
-    btn.textContent = "Tabela";
-    btn.addEventListener("click", () => showTableFromArchive(index));
-    div.appendChild(document.createElement("br"));
-    div.appendChild(btn);
-  }
+  // Dugme za tabelu ako postoji
+if (game.tableHTML && game.tableHTML !== "") {
+
+  let btn = document.createElement("button");
+  btn.className = "btn";
+  btn.textContent = "Tabela";
+
+  btn.addEventListener("click", () => showArchivedTable(index));
+
+  div.appendChild(document.createElement("br"));
+  div.appendChild(btn);
+}
 
       
       gamesDiv.appendChild(div);
