@@ -144,6 +144,23 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
   color: white;
   border: 1px solid #555;
 }
+
+/* Page3 centriranje */
+#page3 {
+  flex-direction: column;
+  justify-content: center; /* vertikalno centriranje */
+  align-items: center;     /* horizontalno centriranje */
+  height: 100vh;           /* zauzima cijeli ekran */
+  text-align: center;
+  gap: 20px;               /* razmak između redova */
+}
+
+#page3 .upperButtons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;   /* razmak između dugmadi */
+}
+
 </style>
 </head>
 <body>
@@ -179,12 +196,15 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
 
 <!-- PAGE 3 -->
 <div id="page3" class="page">
+  <!-- Red dugmadi za broj igraca -->
+  <div class="upperButtons">
   <button class="btn" onclick="newGame()">Nova igra</button>
   <button class="btn" onclick="openTable()">Tabela</button>
   <button class="btn" onclick="openArchive()">Arhiva</button>
   <button class="btn" onclick="openStats()">Statistika</button>
   <button class="btn" onclick="removePlayer()">Izbaci igraca</button>
   <button class="btn" onclick="toggleDark()">Dark mode</button>
+  </div>
   <!-- Ruka -->
   <div id="handLabel" style="text-align:right; font-size:18px; color:#007AFF; margin-top:5px; margin-bottom:5px;">
     Ruka: 1
