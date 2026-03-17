@@ -216,11 +216,11 @@ function displayHandStats() {
   container.innerHTML = ""; // očisti prethodni prikaz
 
   const handNames = {
-    "-400": "Mali hand −400",
-    "-200": "Hand sa donjom kartom ili jokerom −200",
-    "-100": "Hand sa kupljenom kartom −100",
-    "-80": "Standarno zatvaranje sa jokerom −80",
-    "-40": "Standardno zatvaranje −40"
+    "-400": "Mali hand " + "<br>" + "Hand sa donjom kartom i jokerom",
+    "-200": "Hand sa donjom kartom ili jokerom",
+    "-100": "Hand sa kupljenom kartom",
+    "-80": "Standarno zatvaranje sa jokerom",
+    "-40": "Standardno zatvaranje"
   };
 
   Object.keys(handNames).forEach(type => {
