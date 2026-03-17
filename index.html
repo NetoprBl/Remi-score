@@ -121,6 +121,9 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
 <div id="page6" class="page">
   <h3>Statistika</h3>
   <div id="statsList"></div>
+
+<h3>Hand statistika</h3>
+<div id="handStatsList"></div>
   <button class="btn" onclick="showPage(previousPage)">Nazad</button>
 </div>
 
@@ -128,7 +131,12 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
 let playersDB = JSON.parse(localStorage.getItem("remiPlayersDB")) || [];
 let playerNames=[], totals=[], roundHistory=[], roundCount=0, previousPage=1;
 let roundStartTime=null, gameStartTime=null;
-
+let handStats = JSON.parse(localStorage.getItem("remiHandStats")) || {
+  "-400": {},  // Mali hand
+  "-200": {},  // Donja karta / joker
+  "-100": {},  // Kupljena karta
+  "-40": {}    // Standardno zatvaranje
+};
 function toggleDark(){document.body.classList.toggle("dark");}
 function showPage(n){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.getElementById("page"+n).classList.add("active");}
 
@@ -154,7 +162,58 @@ function saveCurrentGame() {
   const gameState = {playerNames, totals, roundHistory, roundCount, elapsedTime};
   localStorage.setItem("remiCurrentGame", JSON.stringify(gameState));
 }
+function updateHandStats(round) {
+  // round = niz poena za sve igrace u toj rundi
+  round.forEach((score, i) => {
+    let player = playerNames[i];
+    if(score === -400) incrementHand(player, "-400");
+    else if(score === -200) incrementHand(player, "-200");
+    else if(score === -100) incrementHand(player, "-100");
+    else if(score === -40) incrementHand(player, "-40");
+  });
 
+  // Sačuvaj u LocalStorage
+  localStorage.setItem("remiHandStats", JSON.stringify(handStats));
+}
+
+function incrementHand(player, type) {
+  if(!handStats[type][player]) handStats[type][player] = 0;
+  handStats[type][player]++;
+}
+
+function displayHandStats() {
+  const container = document.getElementById("handStatsList");
+  container.innerHTML = ""; // očisti prethodni prikaz
+
+  const handNames = {
+    "-400": "Mali hand −400",
+    "-200": "Hand sa donjom kartom / jokerom −200",
+    "-100": "Hand sa kupljenom kartom −100",
+    "-40": "Standardno zatvaranje −40"
+  };
+
+  Object.keys(handNames).forEach(type => {
+    const players = handStats[type];
+    const playerEntries = Object.entries(players)
+      .filter(([_, count]) => count > 0); // samo oni koji imaju >0
+
+    if(playerEntries.length === 0) return; // preskoči ako nema
+
+    // Naslov handa
+    const title = document.createElement("div");
+    title.style.fontWeight = "bold";
+    title.style.marginTop = "10px";
+    title.textContent = handNames[type];
+    container.appendChild(title);
+
+    // Igrači sa brojem handova
+    playerEntries.forEach(([name, count]) => {
+      const div = document.createElement("div");
+      div.textContent = `${name} — ${count}`;
+      container.appendChild(div);
+    });
+  });
+}
 function addNewPlayer(){
 
   let name = prompt("Unesite ime igraca:");
@@ -282,7 +341,36 @@ function formatDate(dateStr){
   let day=("0"+d.getDate()).slice(-2);
   return y+":"+m+":"+day;
 }
+function updateHandStats(round){
 
+  round.forEach((score, i)=>{
+
+    let player = playerNames[i];
+
+    if(score === -400){
+      if(!handStats["-400"][player]) handStats["-400"][player] = 0;
+      handStats["-400"][player]++;
+    }
+
+    if(score === -200){
+      if(!handStats["-200"][player]) handStats["-200"][player] = 0;
+      handStats["-200"][player]++;
+    }
+
+    if(score === -100){
+      if(!handStats["-100"][player]) handStats["-100"][player] = 0;
+      handStats["-100"][player]++;
+    }
+
+    if(score === -40){
+      if(!handStats["-40"][player]) handStats["-40"][player] = 0;
+      handStats["-40"][player]++;
+    }
+
+  });
+
+  localStorage.setItem("remiHandStats", JSON.stringify(handStats));
+}
 function addScore(){
   let round=[];
   let roundEndTime = new Date().getTime();
@@ -302,7 +390,7 @@ function addScore(){
   round.push(roundDuration);
   roundHistory.push(round);
   roundCount++;
-
+updateHandStats(round);
   // Izračun ciklusa: koliko puta svi igrači su odigrali runde
   let currentCycle = Math.floor(roundCount / playerNames.length) + 1;
   document.getElementById("handLabel").innerText = "Ruka: " + currentCycle;
@@ -552,6 +640,8 @@ function openStats(){
 
   previousPage=document.querySelector("#page6").classList.contains("active")?previousPage:3;
   showPage(6);
+  
+  displayHandStats(); // prikaži 
 
   let archive=JSON.parse(localStorage.getItem("remiArchive"))||[];
 
