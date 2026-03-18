@@ -240,18 +240,25 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
 }
 
 #page5 .contentWrapper {
-  flex: 1 1 auto; /* zauzima preostali prostor */
+  flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0;   /* 🔥 važan flex fix */
 }
 
 #archiveList {
-  flex: 1 1 auto;
-  overflow-y: auto; /* scroll */
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  padding: 10px;
+  flex: 1;
+  overflow-y: auto;
+
+  width: 100%;
+  box-sizing: border-box;
+  scrollbar-gutter: stable;
 }
+
+.archiveItem {
+  width: 100%;
+  box-sizing: border-box;
+  }
 
 #page5 .backButton {
   flex: 0 0 auto;
