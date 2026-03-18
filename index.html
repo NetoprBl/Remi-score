@@ -228,51 +228,61 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
   border: 1px solid #555;
 }
 
-/* PAGE 5 ARHIVA - layout */
 #page5 {
   display: flex;
   flex-direction: column;
-  height: 100vh;           /* cijeli ekran */
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* Naslov i gornja dugmad - fiksni vrh */
-#page5 h3, 
-#page5 .upperButtons {
-  flex-shrink: 0;           /* ne smanjuju se */
+  position: absolute;   /* da ne preklapa druge stranice */
+  top: 0;
+  left: 0;
   width: 100%;
-  background: #f0f8ff;      /* svijetlo plava pozadina */
-  padding: 10px 20px;
+  height: 100vh;        /* cijeli ekran */
   box-sizing: border-box;
-  text-align: center;
+  background: inherit;   /* nasljeđuje body boju */
+  padding: 0;
+  overflow: hidden;
+  z-index: 10;           /* da je iznad drugih page elemenata */
 }
 
-/* Grid za gornja dugmad */
+/* Naslov stranice */
+#page5 h3 {
+  flex-shrink: 0;
+  margin: 15px 20px 5px 20px;
+  font-size: 22px;
+  color: #007AFF;
+}
+
+/* Grid gornjih dugmadi */
 #page5 .upperButtons {
   display: grid;
   grid-template-columns: repeat(2, auto);
   gap: 10px 12px;
   justify-content: center;
-  margin-top: 5px;
+  margin: 0 20px 10px 20px;
 }
 
 /* Lista arhive - scrollable dio */
 #archiveList {
-  flex: 1;                  /* zauzima sav preostali prostor */
+  flex: 1;               /* zauzima sav preostali prostor između gornjih dugmadi i dugmeta */
   overflow-y: auto;
   padding: 10px 20px;
   box-sizing: border-box;
-  background: #e9f2ff;      /* svijetlo plava boja */
-  border-top: 1px solid #ccc;
-  border-bottom: 1px solid #ccc;
 }
 
-/* Dugme Nazad - fiksno na dnu */
+/* Svaki archive item */
+.archiveItem {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+  text-align: left;
+  background: inherit;   /* nema pozadinske boje */
+}
+
+/* Dugme Nazad - uvijek na dnu */
 #page5 > button {
   flex-shrink: 0;
   margin: 10px 20px;
-  align-self: center;       /* centrirano horizontalno */
+  align-self: center;
 }
 
 /* PAGE 6 layout */
