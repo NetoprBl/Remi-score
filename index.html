@@ -228,13 +228,51 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
   border: 1px solid #555;
 }
 
-/* Gornja dugmad - 2 reda x 2 kolone */
+/* PAGE 5 ARHIVA - layout */
+#page5 {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;           /* cijeli ekran */
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Naslov i gornja dugmad - fiksni vrh */
+#page5 h3, 
+#page5 .upperButtons {
+  flex-shrink: 0;           /* ne smanjuju se */
+  width: 100%;
+  background: #f0f8ff;      /* svijetlo plava pozadina */
+  padding: 10px 20px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* Grid za gornja dugmad */
 #page5 .upperButtons {
   display: grid;
-  grid-template-columns: repeat(2, auto); /* 2 kolone, širina po sadržaju */
-  grid-auto-rows: auto;                    /* visina po sadržaju */
-  gap: 10px 12px;                          /* vertikalni i horizontalni razmak */
-  justify-content: center;                  /* centrirano po horizontali */
+  grid-template-columns: repeat(2, auto);
+  gap: 10px 12px;
+  justify-content: center;
+  margin-top: 5px;
+}
+
+/* Lista arhive - scrollable dio */
+#archiveList {
+  flex: 1;                  /* zauzima sav preostali prostor */
+  overflow-y: auto;
+  padding: 10px 20px;
+  box-sizing: border-box;
+  background: #e9f2ff;      /* svijetlo plava boja */
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+}
+
+/* Dugme Nazad - fiksno na dnu */
+#page5 > button {
+  flex-shrink: 0;
+  margin: 10px 20px;
+  align-self: center;       /* centrirano horizontalno */
 }
 
 /* PAGE 6 layout */
@@ -372,7 +410,6 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
   <button class="btn" onclick="showPage(3)">Nazad</button>
 </div>
 
-<!-- PAGE 5 ARHIVA -->
 <div id="page5" class="page">
   <h3>Arhiva</h3>
   <div class="upperButtons">
