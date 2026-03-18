@@ -148,20 +148,16 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
 
 /* PAGE 3 */
 #page3 {
-  /* overflow: hidden;        /* nema scrolla */
-  /* touch-action: none;      /* blokira swipe */
-  /* overscroll-behavior: none; */
-  /* position: fixed;  /* ostaje na mjestu */
-  /* inset: 0;         /* top:0 rig */
   flex-direction: column;
-  justify-content: flex-start;  /* elementi odozgo prema dole */
-  align-items: center;          /* horizontalno centrirani */
-  height: 100vh;                /* cijeli ekran */
-  margin-left: 0px;
-  padding: 20px;                /* malo razmaka sa vrha */
-  gap: 20px;                    /* razmak između sekcija */
+  justify-content: flex-start;
   align-items: flex-start;
-  padding-left: 60px
+
+  height: 100vh;
+
+  padding: 20px;
+  gap: 20px;
+
+  box-sizing: border-box;   /* ⭐ KLJUČNO */
 }
 
 /* Gornja dugmad - 2 reda x 2 kolone */
