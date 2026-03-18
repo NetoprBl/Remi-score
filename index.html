@@ -206,6 +206,15 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
   border: 1px solid #555;
 }
 
+/* Gornja dugmad - 2 reda x 2 kolone */
+#page5 .upperButtons {
+  display: grid;
+  grid-template-columns: repeat(2, auto); /* 2 kolone, širina po sadržaju */
+  grid-auto-rows: auto;                    /* visina po sadržaju */
+  gap: 10px 12px;                          /* vertikalni i horizontalni razmak */
+  justify-content: center;                  /* centrirano po horizontali */
+}
+
 /* PAGE 6 layout */
 #page6 {
   justify-content: flex-start;
@@ -342,12 +351,14 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
 <!-- PAGE 5 ARHIVA -->
 <div id="page5" class="page">
   <h3>Arhiva</h3>
-  <button class="btn" onclick="openStats()">Statistika</button>
-  <button class="btn" onclick="exportArchive()">Backup arhive</button>
-<button class="btn" onclick="importArchive()">Vrati arhivu</button>
-<input type="file" id="importFile" accept=".json" style="display:none">
+  <div class="upperButtons">
+    <button class="btn" onclick="openStats()">Statistika</button>
+    <button class="btn" onclick="exportArchive()">Backup arhive</button>
+    <button class="btn" onclick="importArchive()">Vrati arhivu</button>
+    <button class="btn" onclick="deleteSelected()">Obrisi oznacene</button>
+  </div>
+  <input type="file" id="importFile" accept=".json" style="display:none">
   <div id="archiveList"></div>
-  <button class="btn" onclick="deleteSelected()">Obrisi oznacene</button>
   <button class="btn" onclick="closeArchive()">Nazad</button>
 </div>
 
