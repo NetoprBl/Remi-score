@@ -61,12 +61,36 @@ th.timeCol{color:#007AFF;}
 td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
 .cycleLine td:not(.timeCol){border-bottom:3px solid #007AFF !important;}
 .dark table{color:#4da3ff;}
-.archiveItem{border:1px solid #ccc;padding:10px;margin:10px;border-radius:10px;text-align:left;}
+.archiveItem {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 10px 0;          /* samo vertikalni margin */
+  border-radius: 10px;
+  text-align: left;
+  width: 100%;              /* zauzima cijelu širinu roditelja */
+  box-sizing: border-box;   /* padding i border uključen u širinu */
+  background-color: #e9f2ff; /* svijetlo plava boja */
+  cursor: pointer;           /* za dropdown efekte */
+}
 
-#archiveList{
-  max-height: 60vh;   /* visina 60% ekrana */
-  overflow-y: auto;   /* vertikalni scroll */
-  padding-right: 6px; /* da tekst ne dodiruje scroll bar */
+#archiveList {
+  max-height: 60vh;         /* visina 60% ekrana */
+  overflow-y: auto;         /* vertikalni scroll */
+  overflow-x: hidden;       /* sakriva horizontalni scroll */
+  padding-right: 6px;
+  width: 100%;              /* isto zauzima cijelu širinu roditelja */
+  box-sizing: border-box;
+}
+
+/* Sadržaj unutar dropdowna */
+.archiveItem + div {
+  max-height: 200px;       /* maksimalna visina dropdowna */
+  overflow-y: auto;        /* scroll ako je sadržaj veći */
+  width: 100%;             /* fiksna širina */
+  box-sizing: border-box;
+  background-color: #f0f8ff; /* svjetlija plava za kontrast */
+  padding: 5px 10px;
+  border-radius: 0 0 10px 10px; /* zaokruži samo donji dio */
 }
 /* STATISTIKA - NASLOVI */
 #page6 h3 {
