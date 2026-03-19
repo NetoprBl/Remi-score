@@ -461,6 +461,7 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
 <script>
 let playersDB = JSON.parse(localStorage.getItem("remiPlayersDB")) || [];
 let playerNames=[], totals=[], roundHistory=[], roundCount=0, previousPage=1;
+let archivePreviousPage = 1;   // ⭐ NOVO
 let roundStartTime=null, gameStartTime=null;
 let handStats = JSON.parse(localStorage.getItem("remiHandStats")) || {
   "-400": {},  // Mali hand
@@ -846,9 +847,19 @@ function openTable(){
 }
 
 // ARCHIVE
-function openArchive(){previousPage=3; showPage(5); loadArchive();}
-function openArchiveFromMenu(){previousPage=1; showPage(5); loadArchive();}
-function closeArchive(){showPage(previousPage);}
+function openArchive(){
+  archivePreviousPage = 3;
+  showPage(5);
+  loadArchive();
+}
+function openArchiveFromMenu(){
+  archivePreviousPage = 1;
+  showPage(5);
+  loadArchive();
+}
+function closeArchive(){
+  showPage(archivePreviousPage);
+}
 function loadArchive() {
   let archive = JSON.parse(localStorage.getItem("remiArchive")) || [];
   let container = document.getElementById("archiveList");
