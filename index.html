@@ -967,12 +967,14 @@ function deleteSelected(){
 // STATISTICS
 function openStats(){
 
-  previousPage=document.querySelector("#page6").classList.contains("active")?previousPage:3;
-  showPage(6);
-  
-  displayHandStats(); // prikaži 
+  // zapamti trenutno aktivnu stranicu
+  const active = document.querySelector(".page.active");
+  previousPage = parseInt(active.id.replace("page", ""));
 
-  let archive=JSON.parse(localStorage.getItem("remiArchive"))||[];
+  showPage(6);
+  displayHandStats();
+
+  let archive = JSON.parse(localStorage.getItem("remiArchive")) || [];
 
   let wins={}, totalPoints={}, gamesPlayed={};
 
