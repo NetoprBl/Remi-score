@@ -281,6 +281,13 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
   /* overflow: visible; */
   
 }
+.statsButtons {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 10px 12px;
+  justify-content: center;   /* ⭐ horizontalno centrirano */
+  margin-bottom: 10px;
+}
 
 /* Accordion container */
 .accordion {
@@ -413,9 +420,9 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
   <h3>Arhiva</h3>
 
   <div class="upperButtons">
-    <button class="btn" onclick="openStats()">Statistika</button>
-    <button class="btn" onclick="exportArchive()">Backup arhive</button>
     <button class="btn" onclick="importArchive()">Vrati arhivu</button>
+    <button class="btn" onclick="exportArchive()">Backup arhive</button>
+    <button class="btn" onclick="openStats()">Statistika</button>
     <button class="btn" onclick="deleteSelected()">Obrisi oznacene</button>
   </div>
 
@@ -431,6 +438,13 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
     <div class="title">
       Statistika
     </div>
+    <div class="statsButtons">
+  <button class="btn" onclick="exportStats()">Backup podataka</button>
+  <button class="btn" onclick="importStats()">Vrati podatke</button>
+</div>
+
+<!-- skriveni input za izbor fajla -->
+<input type="file" id="importStatsFile" accept=".json" style="display:none">
  </div>
   <!-- LISTA 1 -->
   <div class="accordion">
@@ -974,6 +988,73 @@ function deleteSelected(){
   localStorage.setItem("remiArchive",JSON.stringify(archive));
   loadArchive();
 }
+
+function exportStats(){
+
+  // uzmi statistiku iz localStorage
+  let stats = localStorage.getItem("remiHandStats");
+
+  if(!stats){
+    alert("Nema podataka za backup.");
+    return;
+  }
+
+  // napravi JSON fajl
+  let blob = new Blob([stats], {type:"application/json"});
+
+  // napravi link za download
+  let a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+
+  // ime fajla
+  a.download = "remi_statistika_backup.json";
+
+  // pokreni download
+  a.click();
+}
+
+function importStats(){
+  document.getElementById("importStatsFile").click();
+}
+
+function handleStatsImport(e){
+
+  let file = e.target.files[0];
+  if(!file) return;
+
+  let reader = new FileReader();
+
+  reader.onload = function(event){
+
+    try{
+
+      let data = JSON.parse(event.target.result);
+
+      if(typeof data !== "object"){
+        alert("Neispravan fajl.");
+        return;
+      }
+
+      if(!confirm("Zamijeniti postojeću statistiku?")) return;
+
+      localStorage.setItem("remiHandStats", JSON.stringify(data));
+      handStats = data;
+      displayHandStats();
+
+      alert("Statistika uspješno vraćena.");
+
+    } catch(err){
+      alert("Greška pri učitavanju fajla.");
+    }
+
+  };
+
+  reader.readAsText(file);
+}
+
+// povezivanje sa inputom
+document.getElementById("importStatsFile")
+  .addEventListener("change", handleStatsImport);
 
 // STATISTICS
 function openStats(){
