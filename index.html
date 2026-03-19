@@ -75,7 +75,7 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
 }
 
 #archiveList {
-  max-height: 100vh;         /* visina 60% ekrana */
+  max-height: 60vh;         /* visina 60% ekrana */
   overflow-y: auto;         /* vertikalni scroll */
   overflow-x: hidden;       /* sakriva horizontalni scroll */
   padding-right: 6px;
@@ -85,7 +85,7 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
 
 /* Sadržaj unutar dropdowna */
 .archiveItem + div {
-  max-height: 200px;       /* maksimalna visina dropdowna */
+  max-height: 400px;       /* maksimalna visina dropdowna */
   overflow-y: auto;        /* scroll ako je sadržaj veći */
   width: 100%;             /* fiksna širina */
   box-sizing: border-box;
@@ -255,7 +255,6 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
 #archiveList {
   flex: 1;
   overflow-y: auto;
-  max-height: 400px;
   width: 100%;           /* 🔥 NAJVAŽNIJE */
   box-sizing: border-box;
   scrollbar-gutter: stable;
