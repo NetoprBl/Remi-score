@@ -990,32 +990,108 @@ function deleteSelected(){
   loadArchive();
 }
 
-function exportStats(){
+// Backup kompletne statistike
+function exportFullStats() {
+  const archive = JSON.parse(localStorage.getItem("remiArchive")) || [];
+  const handStats = JSON.parse(localStorage.getItem("remiHandStats")) || {};
 
-  // uzmi statistiku iz localStorage
-  let stats = localStorage.getItem("remiHandStats");
-
-  if(!stats){
-    alert("Nema podataka za backup.");
+  if(archive.length === 0 && Object.keys(handStats).length === 0){
+    alert("Nema podataka za backup statistike.");
     return;
   }
 
-  // napravi JSON fajl
-  let blob = new Blob([stats], {type:"application/json"});
+  let wins={}, totalPoints={}, gamesPlayed={};
+  let maxGamePoints={player:"",val:-Infinity};
+  let minGamePoints={player:"",val:Infinity};
+  let maxTime={val:-1,date:""};
+  let minTime={val:Infinity,date:""};
 
-  // napravi link za download
-  let a = document.createElement("a");
+  archive.forEach(game=>{
+    game.players.forEach((p,i)=>{
+      if(!wins[p]) wins[p]=0;
+      if(!totalPoints[p]) totalPoints[p]=0;
+      if(!gamesPlayed[p]) gamesPlayed[p]=0;
+
+      let score = game.scores[i];
+      gamesPlayed[p]++;
+      totalPoints[p]+=score;
+
+      if(score > maxGamePoints.val){
+        maxGamePoints.val = score;
+        maxGamePoints.player = p;
+      }
+
+      if(score < minGamePoints.val){
+        minGamePoints.val = score;
+        minGamePoints.player = p;
+      }
+    });
+
+    let minScore = Math.min(...game.scores);
+    let winnerIndex = game.scores.indexOf(minScore);
+    wins[game.players[winnerIndex]]++;
+
+    if(game.duration > maxTime.val){
+      maxTime.val = game.duration;
+      maxTime.date = game.date;
+    }
+
+    if(game.duration < minTime.val){
+      minTime.val = game.duration;
+      minTime.date = game.date;
+    }
+  });
+
+  const fullStats = { wins, totalPoints, gamesPlayed, handStats, maxGamePoints, minGamePoints, maxTime, minTime };
+
+  const blob = new Blob([JSON.stringify(fullStats, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-
-  // ime fajla
-  a.download = "remi_statistika_backup.json";
-
-  // pokreni download
+  a.download = "remi_kompletna_statistika.json";
   a.click();
 }
 
-function importStats(){
-  document.getElementById("importStatsFile").click();
+// Vraćanje kompletne statistike
+function importFullStats() {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".json";
+
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if(!file) return;
+
+    const reader = new FileReader();
+    reader.onload = evt => {
+      try {
+        const data = JSON.parse(evt.target.result);
+
+        if(!confirm("Zamijeniti postojeću statistiku?")) return;
+
+        localStorage.setItem("remiHandStats", JSON.stringify(data.handStats || {}));
+        handStats = data.handStats || {};
+
+        // Ostali podaci za JS (ako želiš prikazati)
+        wins = data.wins || {};
+        totalPoints = data.totalPoints || {};
+        gamesPlayed = data.gamesPlayed || {};
+        maxGamePoints = data.maxGamePoints || {player:"",val:-Infinity};
+        minGamePoints = data.minGamePoints || {player:"",val:Infinity};
+        maxTime = data.maxTime || {val:-1,date:""};
+        minTime = data.minTime || {val:Infinity,date:""};
+
+        displayHandStats();
+        alert("Statistika uspješno vraćena.");
+      } catch(err){
+        alert("Greška pri učitavanju fajla.");
+        console.error(err);
+      }
+    };
+
+    reader.readAsText(file);
+  };
+
+  input.click();
 }
 
 function handleStatsImport(e){
