@@ -338,12 +338,31 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
 /* Game board grid (ako želiš da bude isto kao prije) */
 #page3 #gameBoard {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr; /* 6 kolona */
-  gap: 10px;
+  grid-template-columns: 30px 1fr 50px 50px 70px 70px;
+  gap: 6px;
   align-items: center;
   justify-items: center;
   width: 100%;
   box-sizing: border-box;
+}
+
+#gameBoard b {
+  color: #007AFF;
+  font-size: 14px;
+}
+
+#gameBoard input[type="checkbox"] {
+  transform: scale(1.2);
+  display: block;
+  margin: auto;
+}
+
+.dealerDot {
+  width: 12px;
+  height: 12px;
+  background: #007AFF;
+  border-radius: 50%;
+  display: inline-block;
 }
 
 </style>
@@ -666,10 +685,10 @@ function createBoard(){
   let board = document.getElementById("gameBoard");
   board.innerHTML = "";
 
-  // 🔹 HEADER (novo)
+  // 🔹 HEADER (bez naziva za prvu kolonu)
   board.innerHTML += `
-    <div class="dealer"><b>Dijeli</b></div>
-    <div class="playerName"><b>Igrač</b></div>
+    <div></div>
+    <div><b>Igrač</b></div>
     <div><b>P100</b></div>
     <div><b>PJOK</b></div>
     <div><b>Poeni</b></div>
@@ -680,22 +699,16 @@ function createBoard(){
 
   playerNames.forEach((name, i) => {
 
-    let label = (i == dealer) ? "Dijeli:" : "";
+    let dealerIcon = (i == dealer) ? '<span class="dealerDot"></span>' : "";
 
     board.innerHTML += `
-      <div class="dealer">${label}</div>
+      <div>${dealerIcon}</div>
       <div class="playerName">${name}</div>
 
-      <!-- P100 (placeholder) -->
       <input type="checkbox" disabled>
+      <input type="checkbox" enabled>
 
-      <!-- PJOK (placeholder) -->
-      <input type="checkbox" disabled>
-
-      <!-- Poeni (postojeći input - NE MIJENJAMO) -->
       <input type="number" class="scoreInput" id="score${i}">
-
-      <!-- Total (postojeći) -->
       <div class="totalScore" id="total${i}">${totals[i]}</div>
     `;
   });
