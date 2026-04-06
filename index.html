@@ -357,6 +357,12 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
   transform: scale(1.2);
 }
 
+.checkCell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .dealerDot {
   width: 12px;
   height: 12px;
@@ -705,9 +711,13 @@ function createBoard(){
       <div>${dealerIcon}</div>
       <div class="playerName">${name}</div>
 
-      <input type="checkbox" enabled>
-      <input type="checkbox" enabled>
-
+<div class="checkCell">
+  <input type="checkbox" enabled>
+</div>
+<div class="checkCell">
+  <input type="checkbox" enabled>
+</div>
+      
       <input type="number" class="scoreInput" id="score${i}">
       <div class="totalScore" id="total${i}">${totals[i]}</div>
     `;
