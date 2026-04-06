@@ -689,11 +689,11 @@ function startGame(){
 
 function currentDealer(){return roundCount%playerNames.length;}
 
-function createBoard(){
+function createBoard() {
   let board = document.getElementById("gameBoard");
   board.innerHTML = "";
 
-  // 🔹 HEADER (bez naziva za prvu kolonu)
+  // HEADER
   board.innerHTML += `
     <div></div>
     <div><b></b></div>
@@ -706,39 +706,36 @@ function createBoard(){
   let dealer = currentDealer();
 
   playerNames.forEach((name, i) => {
-
     let dealerIcon = (i == dealer) ? '<span class="dealerDot"></span>' : "";
 
     board.innerHTML += `
       <div>${dealerIcon}</div>
       <div class="playerName">${name}</div>
 
-<div class="checkCell">
-  <input type="checkbox" enabled>
-</div>
-<div class="checkCell">
-  <input type="checkbox" enabled>
-</div>
-      
+      <div class="checkCell">
+        <input type="checkbox" class="p1Check" data-player="${i}">
+      </div>
+      <div class="checkCell">
+        <input type="checkbox">
+      </div>
+
       <input type="number" class="scoreInput" id="score${i}">
       <div class="totalScore" id="total${i}">${totals[i]}</div>
     `;
   });
-  // Dodaj event listener za P1 checkbox
-document.querySelectorAll(".checkCell input[type='checkbox']").forEach((cb, i) => {
-  // Pretpostavljamo da je prvi checkbox u svakom redu P1
-  if(i % 2 === 0){ // P1 checkbox je prvi od dva checkboxa u redu
+
+  // Dodaj event listener za sve P1 checkboxeve
+  document.querySelectorAll(".p1Check").forEach(cb => {
     cb.addEventListener("change", function() {
-      const playerIndex = Math.floor(i / 2); // indeks igrača
-      if(this.checked){
-        totals[playerIndex] -= 100;
+      const i = parseInt(this.dataset.player);
+      if (this.checked) {
+        totals[i] -= 100;
       } else {
-        totals[playerIndex] += 100;
+        totals[i] += 100;
       }
-      document.getElementById("total" + playerIndex).innerText = totals[playerIndex];
+      document.getElementById("total" + i).innerText = totals[i];
     });
-  }
-});
+  });
 }
 
 function formatTime(seconds){
@@ -789,38 +786,54 @@ function updateHandStats(round){
 
   localStorage.setItem("remiHandStats", JSON.stringify(handStats));
 }
-function addScore(){
-  let round=[];
+function addScore() {
+  let round = [];
   let roundEndTime = new Date().getTime();
   let roundDuration = Math.round((roundEndTime - roundStartTime)/1000);
   roundStartTime = roundEndTime;
 
-  playerNames.forEach((p,i)=>{
-    let val=document.getElementById("score"+i).value;
-    if(val==="") val=0;
-    val=parseInt(val);
-    totals[i]+=val;
-    document.getElementById("total"+i).innerText=totals[i];
+  playerNames.forEach((p, i) => {
+    let val = document.getElementById("score" + i).value;
+    if(val === "") val = 0;
+    val = parseInt(val);
+
+    // Ako je P1 čekiran, oduzmi dodatnih 100
+    let p1Checkbox = document.querySelector(`.p1Check[data-player="${i}"]`);
+    if(p1Checkbox && p1Checkbox.checked) {
+      val -= 100; // P1 oduzima 100 poena
+    }
+
+    totals[i] += val;
+    document.getElementById("total" + i).innerText = totals[i];
+
     round.push(val);
-    document.getElementById("score"+i).value="";
+
+    // Reset input
+    document.getElementById("score" + i).value = "";
+    // Reset P1 checkbox
+    if(p1Checkbox) p1Checkbox.checked = false;
   });
 
   round.push(roundDuration);
   roundHistory.push(round);
   roundCount++;
-updateHandStats(round);
-  // Izračun ciklusa: koliko puta svi igrači su odigrali runde
-  let currentCycle = Math.floor(roundCount / playerNames.length) + 1;
-  document.getElementById("handLabel").innerText = "Ruka: " + currentCycle;
 
-  createBoard();
+  updateHandStats(round);
+  document.getElementById("handLabel").innerText = "Ruka: " + Math.floor(roundCount / playerNames.length + 1);
+
+  createBoard(); // ponovo renderuj board
   saveCurrentGame();
 }
 
-function removeLast(){
-  if(roundHistory.length==0)return;
-  let last=roundHistory.pop();
-  last.slice(0,playerNames.length).forEach((v,i)=>{totals[i]-=v;});
+function removeLast() {
+  if(roundHistory.length == 0) return;
+
+  let last = roundHistory.pop();
+
+  last.slice(0, playerNames.length).forEach((v, i) => {
+    totals[i] -= v; // vrati poene iz poslednje runde
+  });
+
   roundCount--;
   createBoard();
   saveCurrentGame();
