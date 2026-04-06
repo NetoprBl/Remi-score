@@ -688,11 +688,11 @@ function createBoard(){
   // 🔹 HEADER (bez naziva za prvu kolonu)
   board.innerHTML += `
     <div></div>
-    <div><b>Igrač</b></div>
-    <div><b>P100</b></div>
-    <div><b>PJOK</b></div>
-    <div><b>Poeni</b></div>
-    <div><b>Total</b></div>
+    <div><b></b></div>
+    <div><b>P1</b></div>
+    <div><b>PJ</b></div>
+    <div><b></b></div>
+    <div><b></b></div>
   `;
 
   let dealer = currentDealer();
@@ -705,7 +705,7 @@ function createBoard(){
       <div>${dealerIcon}</div>
       <div class="playerName">${name}</div>
 
-      <input type="checkbox" disabled>
+      <input type="checkbox" enabled>
       <input type="checkbox" enabled>
 
       <input type="number" class="scoreInput" id="score${i}">
