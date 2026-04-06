@@ -724,18 +724,7 @@ function createBoard() {
     `;
   });
 
-  // Dodaj event listener za sve P1 checkboxeve
-  document.querySelectorAll(".p1Check").forEach(cb => {
-    cb.addEventListener("change", function() {
-      const i = parseInt(this.dataset.player);
-      if (this.checked) {
-        totals[i] -= 100;
-      } else {
-        totals[i] += 100;
-      }
-      document.getElementById("total" + i).innerText = totals[i];
-    });
-  });
+  
 }
 
 function formatTime(seconds){
