@@ -724,6 +724,21 @@ function createBoard(){
       <div class="totalScore" id="total${i}">${totals[i]}</div>
     `;
   });
+  // Dodaj event listener za P1 checkbox
+document.querySelectorAll(".checkCell input[type='checkbox']").forEach((cb, i) => {
+  // Pretpostavljamo da je prvi checkbox u svakom redu P1
+  if(i % 2 === 0){ // P1 checkbox je prvi od dva checkboxa u redu
+    cb.addEventListener("change", function() {
+      const playerIndex = Math.floor(i / 2); // indeks igrača
+      if(this.checked){
+        totals[playerIndex] -= 100;
+      } else {
+        totals[playerIndex] += 100;
+      }
+      document.getElementById("total" + playerIndex).innerText = totals[playerIndex];
+    });
+  }
+});
 }
 
 function formatTime(seconds){
