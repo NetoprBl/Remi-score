@@ -338,15 +338,12 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
 /* Game board grid (ako želiš da bude isto kao prije) */
 #page3 #gameBoard {
   display: grid;
-  grid-template-columns: 1fr 1.5fr 1fr 1fr;
-  gap: 12px;
-  align-items: flex-start;
+  grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr; /* 6 kolona */
+  gap: 10px;
+  align-items: center;
   justify-items: center;
-  margin-top: 1px;
-
-  width: 100%;           /* zauzima cijeli roditeljski prostor */
-  box-sizing: border-box; /* padding ne povećava širinu */
-  padding-left: 0;       /* ukloni fiksni padding */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 </style>
@@ -668,18 +665,38 @@ function currentDealer(){return roundCount%playerNames.length;}
 function createBoard(){
   let board = document.getElementById("gameBoard");
   board.innerHTML = "";
+
+  // 🔹 HEADER (novo)
+  board.innerHTML += `
+    <div class="dealer"><b>Dijeli</b></div>
+    <div class="playerName"><b>Igrač</b></div>
+    <div><b>P100</b></div>
+    <div><b>PJOK</b></div>
+    <div><b>Poeni</b></div>
+    <div><b>Total</b></div>
+  `;
+
   let dealer = currentDealer();
 
   playerNames.forEach((name, i) => {
+
     let label = (i == dealer) ? "Dijeli:" : "";
+
     board.innerHTML += `
       <div class="dealer">${label}</div>
       <div class="playerName">${name}</div>
+
+      <!-- P100 (placeholder) -->
+      <input type="checkbox" disabled>
+
+      <!-- PJOK (placeholder) -->
+      <input type="checkbox" disabled>
+
+      <!-- Poeni (postojeći input - NE MIJENJAMO) -->
       <input type="number" class="scoreInput" id="score${i}">
-      <div style="position: relative;">
-        <div class="totalScore" id="total${i}">${totals[i]}</div>
-        
-      </div>
+
+      <!-- Total (postojeći) -->
+      <div class="totalScore" id="total${i}">${totals[i]}</div>
     `;
   });
 }
