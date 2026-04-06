@@ -338,10 +338,10 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
 /* Game board grid (ako želiš da bude isto kao prije) */
 #page3 #gameBoard {
   display: grid;
-  grid-template-columns: 30px 1fr 50px 50px 70px 70px;
+  grid-template-columns: 28px 1fr 40px 40px 65px 65px;
   gap: 6px;
   align-items: center;
-  justify-items: center;
+  justify-items: stretch; /* 🔥 važno */
   width: 100%;
   box-sizing: border-box;
 }
@@ -359,6 +359,8 @@ td.timeCol{color:red;width:80px;text-align:center;border:1px solid #ccc;}
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  overflow: hidden; /* 🔥 sprječava prelijevanje */
 }
 
 .dealerDot {
